@@ -8,6 +8,9 @@ function App() {
   return (
     <>
       <Search></Search>
+      <div>
+        body
+      </div>
     </>
   )
 }
