@@ -15,7 +15,7 @@
 .SearchBar {
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
   border-radius: 99px;
-  width: 80%;
+  width: 85%;
   margin: 0 auto;
   display: flex;
   align-items: stretch;
@@ -31,7 +31,7 @@
   font-size: 1.2rem;
 }
 
-.searchInput:focus {
+.searchInput:focus, .custom-radius > input:focus {
   outline: none;
 }
 
@@ -63,4 +63,90 @@
 .app-options {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  margin: 0 auto;
 }
+
+.app-options > button {
+  padding: 0.2rem;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.app-options > button:hover {
+  cursor: pointer;
+}
+
+.filter-panel {
+  z-index: 1;
+  position: absolute;
+  background-color: white;
+  width: 95%;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+  margin-top: 2px;
+}
+
+.filter-panel-visible {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  transition: 0.4s ease;
+}
+
+.filter-panel-hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+  visibility: hidden;
+  transition: 0.4s ease;
+}
+
+.filter-inputs {
+  display: flex;
+  align-items: center;
+  padding: 0.12rem 2.5rem;
+}
+
+.custom-radius {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 2rem;
+}
+
+.custom-radius > h4 {
+  margin-right: 1rem;
+}
+
+.custom-radius > input {
+  margin-right: 1rem;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  border-radius: 99px;
+  border: none;
+  padding: 0.5rem;
+}
+
+.option-button {
+  background-color: white;
+  border: none;
+  border-radius: 9px;
+  padding: 0.5rem;
+  margin-left: 2rem;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+}
+
+.option-button:hover{
+  cursor: pointer;
+  background-color: rgb(225, 225, 225);
+}
+
+.option-button.selected{
+  background-color: #3D8AF7;
+  color: white;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+

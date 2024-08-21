@@ -1,6 +1,7 @@
 import React from 'react';
 import FilterPanel from './FilterPanel';
 import NavBar from './NavBar';
+import { QueryType } from '../Interfaces';
 
 /**
  * Search Component
@@ -13,10 +14,20 @@ export default function Search(props: {}) : JSX.Element {
     // State for opening and closing the filter panel menu
     const [filterHidden, setFilterHidden] = React.useState(true);
 
+    // State for the type of query
+    const [query, setQuery] = React.useState<QueryType>({
+        radius: "",
+        experience: [],
+        activity: [],
+        audience: [],
+        time: [],
+        season: []
+    })
+
     return ( 
         <div className='search'>
             <NavBar setFilterHidden={setFilterHidden}></NavBar>
-            {filterHidden && (<FilterPanel></FilterPanel>)}
+            <FilterPanel query={query} setQuery={setQuery} className={filterHidden ? 'filter-panel-hidden' : 'filter-panel-visible'}></FilterPanel>
         </div>
     );
 }

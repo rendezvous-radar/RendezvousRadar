@@ -18,10 +18,6 @@ export default function NavBar(props: {setFilterHidden: React.Dispatch<React.Set
         <div className='app-navbar'>
             <img className="app-icon" src={logo}></img>
             <SearchBar></SearchBar>
-            <div className='app-options'>
-                <button>Address</button>
-                <button>Search</button>
-            </div>
             <span className="material-icons app-menu" onClick={handleClick}>
                 menu
             </span>
