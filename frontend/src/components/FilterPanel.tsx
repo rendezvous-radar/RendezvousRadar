@@ -5,10 +5,19 @@ import { QueryType } from '../Interfaces';
  * FilterPanel Component
  *  
  * @param {Object} props - The component props.
+ * @param {QueryType} props.query The query object for the api call
+ * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setQuery Sets the query of the api call
+ * @param {string} props.className Toggles visibility of the component
  * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setQuery Sets the query of the api call
  * @returns {JSX.Element} A React JSX element representing the FilterPanel Component, the filter panel of the website
 */
-export default function FilterPanel(props: {query: QueryType, setQuery: React.Dispatch<React.SetStateAction<QueryType>>, className: string}) : JSX.Element {    
+export default function FilterPanel(
+    props: {
+        query: QueryType, 
+        setQuery: React.Dispatch<React.SetStateAction<QueryType>>, 
+        className: string, setSearch: React.Dispatch<React.SetStateAction<boolean>>
+    }) : JSX.Element {    
+
     // Custom Radius State
     const [isCustomRadius, setIsCustomRadius] = React.useState<boolean>(false);
 
@@ -44,8 +53,29 @@ export default function FilterPanel(props: {query: QueryType, setQuery: React.Di
         }));
     };
 
+    const handleApplyFilterClick = () => {
+
+        // Validate query fields
+        if(props.query.radius !== "" &&
+            !isNaN(Number(props.query.radius)) && 
+            props.query.experience.length !== 0 && 
+            props.query.activity.length !== 0 && 
+            props.query.audience.length !== 0 && 
+            props.query.time.length !== 0 && 
+            props.query.season.length !== 0) {
+                props.setSearch(true);
+                console.log(Number(props.query.radius))
+        }
+
+        // TODO: Error Handling: Check that radius doesn't exceed maximum, display messages for missing specific queries
+        else{
+            console.log("Something's wrong")
+        }
+
+    }
+
     return ( 
-        <div className={`filter-panel ${props.className}`}>
+        <div className={`filter-panel e${props.className}`}>
             <h3> Filters </h3>
             
             <div className="filter-inputs">
@@ -134,6 +164,8 @@ export default function FilterPanel(props: {query: QueryType, setQuery: React.Di
                     >
                         {season}
                     </button>))}
+
+                <button className='option-button filter' onClick={() => handleApplyFilterClick()}>Apply Filters</button>
             </div>
         </div>
     );
