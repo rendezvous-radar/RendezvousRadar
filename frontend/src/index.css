@@ -154,3 +154,32 @@ h4 {
   font-size: 1.25rem;
 }
 
+.error-msg {
+  background-color: rgb(245, 59, 59);
+  color: white;
+  z-index: 1;
+  position: absolute;
+  display: flex;
+  padding: 0rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 1rem;
+}
+
+.error-msg > button {
+  background-color: rgb(245, 59, 59);
+  border: none;
+  font-size: 2rem;
+  color: white;
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.error-msg > button:hover{
+  cursor: pointer;
+}

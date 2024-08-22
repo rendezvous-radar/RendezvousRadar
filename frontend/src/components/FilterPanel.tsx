@@ -21,6 +21,9 @@ export default function FilterPanel(
     // Custom Radius State
     const [isCustomRadius, setIsCustomRadius] = React.useState<boolean>(false);
 
+    // Show Error Message State
+    const [isWrong, setIsWrong] = React.useState<boolean>(false);
+
     const handleRadiusClick = (radius: string) => {
         props.setQuery(prevQuery => ({
             ...prevQuery,
@@ -58,24 +61,27 @@ export default function FilterPanel(
         // Validate query fields
         if(props.query.radius !== "" &&
             !isNaN(Number(props.query.radius)) && 
+            Number(props.query.radius) <= 30 &&
             props.query.experience.length !== 0 && 
             props.query.activity.length !== 0 && 
             props.query.audience.length !== 0 && 
             props.query.time.length !== 0 && 
             props.query.season.length !== 0) {
+                setIsWrong(false);
                 props.setSearch(true);
                 console.log(Number(props.query.radius))
         }
 
         // TODO: Error Handling: Check that radius doesn't exceed maximum, display messages for missing specific queries
         else{
+            setIsWrong(true);
             console.log("Something's wrong")
         }
 
     }
 
     return ( 
-        <div className={`filter-panel e${props.className}`}>
+        <div className={`filter-panel ${props.className}`}>
             <h3> Filters </h3>
             
             <div className="filter-inputs">
@@ -167,6 +173,13 @@ export default function FilterPanel(
 
                 <button className='option-button filter' onClick={() => handleApplyFilterClick()}>Apply Filters</button>
             </div>
+            {
+                isWrong && 
+                <div className="error-msg">
+                    <p>Please select at least one filter per category, and select a proper number that doesn't exceed 30 km for the radius.</p>
+                    <button onClick={() => setIsWrong(false)}>x</button>
+                </div>
+            }
         </div>
     );
 }
