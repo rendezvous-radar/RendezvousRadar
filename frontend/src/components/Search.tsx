@@ -58,16 +58,27 @@ export default function Search() : JSX.Element {
         }
     }
 
-    // POI fetching will look something like this
+    // POI Fetching: Key_value is the array of tuples of the key value pairs generated from the backend
     // TODO: Update
-    const fetchPOIs = async () => {
+    const fetchPOIs = async (key_value: Array<Array<string>>) => {
         try {
           const latitude = coordinates.lat;
           const longitude = coordinates.lon; 
+
+          let query_string = "[out:json];(";
+
+          for (let i = 0; i < key_value.length; i += 1) {
+            if (i == key_value.length - 1) {
+                query_string = query_string.concat(`way(around:${query.radius},${latitude},${longitude})["${key_value[i][0]}"=${key_value[i][1]}];);out center;`)
+            }
+            else {
+                query_string = query_string.concat(`way(around:${query.radius},${latitude},${longitude})["${key_value[i][0]}"=${key_value[i][1]}];`)
+            }
+          }
   
           const response = await axios.get('https://overpass-api.de/api/interpreter', {
             params: {
-              data: `[out:json];(way(around:${range},${latitude},${longitude})["amenity"="community_centre"];way(around:${range},${latitude},${longitude})["leisure"="pitch"]["sport"="basketball"];way(around:${range},${latitude},${longitude})["amenity"="school"]["sport"="basketball"];);out center;`,
+              data: query_string,
             },
           });
 
@@ -77,7 +88,8 @@ export default function Search() : JSX.Element {
         } catch (error) {
           console.error('Error fetching Basketball Courts:', error);
         }
-
+    }
+    
     // Where the API is called, should add loading symbol, etc
     // TODO: Search is only set by the filter-options, we must also add an additional state for the Model's output
     React.useEffect(() => {
