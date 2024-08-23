@@ -117,19 +117,17 @@ Lighthouse,man_made,lighthouse,"romantic, family-friendly, adventure, outdoor, s
 
     def activity_matches(row, preds):
         classifications = set(row['Classifications'].lower().split(', '))
-        return all(pred.lower() in classifications or pred == 'Any' for pred in preds.values())
+        return all(any(pred.lower() in classifications or pred == 'Any' for pred in pred_list) for pred_list in preds.values())
 
     matching_activities = df[df.apply(activity_matches, axis=1, args=(preds,))]
 
     return [(row['Key'], row['Value']) for _, row in matching_activities.iterrows()]
 
-
-
-# The preds should be the format of the dictionary object passed through to the function
+# The preds should now be a dictionary where each key is a category and the value is a list of strings
 print(prediction(preds={
-    'type_of_experience': 'Family-Friendly',
-    'activity_type': 'Dining',
-    'target_audience': 'Families',
-    'seasonality': 'Any',  
-    'time_of_day': 'Any'    
-    }))
+    'type_of_experience': ['Family-Friendly', 'Adventure'],
+    'activity_type': ['Dining', 'Outdoor'],
+    'target_audience': ['Families', 'Groups'],
+    'seasonality': ['Summer', 'Autumn', 'Any'],  
+    'time_of_day': ['Morning', 'Afternoon', 'Any']
+}))
