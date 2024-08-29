@@ -2,7 +2,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  padding: 0;
+  padding: 0 !important;
   margin: 0;
 
   font-synthesis: none;
@@ -27,7 +27,7 @@
   box-sizing: border-box;
   border-radius: 99px;
   border: None;
-  width: 82%;
+  width: 100%;
   font-size: 1.2rem;
 }
 
@@ -36,19 +36,21 @@
 }
 
 .searchIcon {
-  font-size: 2rem;
+  font-size: 2.5vmin;
   margin: auto 0;
-  margin-left: 1vw;
+  margin-left: 0.5vw;
+  color: rgb(171, 168, 168);
 }
 
 .app-menu:hover {
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.443);
+  color: #3D8AF7;
 }
 
 .app-menu {
-  font-size: 3rem;
+  font-size: 3vmin !important;
   margin: auto 0;
+  color: rgb(171, 168, 168);
 }
 
 .app-navbar {
@@ -80,10 +82,11 @@
 }
 
 .filter-panel {
-  z-index: 1;
+  z-index: 2;
+  left: 0;
   position: absolute;
   background-color: white;
-  width: 95%;
+  width: 100%;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
   margin-top: 2px;
 }
@@ -160,26 +163,138 @@ h4 {
   z-index: 1;
   position: absolute;
   display: flex;
-  padding: 0rem;
+  padding: 1rem;
   left: 50%;
+  min-width: fit-content;
+  width: auto;
   transform: translateX(-50%);
-  display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   border-radius: 5px;
-  padding: 10px;
   margin-top: 1rem;
+  box-sizing: border-box;
 }
 
-.error-msg > button {
-  background-color: rgb(245, 59, 59);
-  border: none;
-  font-size: 2rem;
-  color: white;
+.error-msg > div {
   margin: 0;
-  padding-left: 1rem;
+  flex: 1;
+  white-space: nowrap; 
+  overflow: hidden;
 }
 
-.error-msg > button:hover{
+.error-msg > .close-err {
+  background-color: transparent;
+  border: none;
+  font-size: 2.5vmin;
+  color: rgb(255, 255, 255);
+}
+
+
+.error-msg > .close-err:hover{
   cursor: pointer;
+  color: rgb(238, 169, 169);
+}
+
+.app-placecard{
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  background-color: white;
+  padding: 0.2vh 1.5vmax;
+  width: 15vw;
+  position: absolute;
+  height: 89.8vh;
+  max-height: 89.8vh;
+  top: 9vh;
+  z-index: 1;
+  right: 0;
+  text-align: left;
+  opacity: 1;
+  transition: opacity 1s ease, max-height 1s ease;
+}
+
+.app-placecard > h2{
+  font-size: 2vmin;
+  font-weight: 500;
+  margin-bottom: 0;
+  margin-top: 10%;
+}
+
+.overview {
+  border-bottom: 2px solid #368dff;
+  color: #368dff;
+  padding: 1vh;
+  font-size:1.5vmin;
+  font-weight: 500;
+  margin: 0 !important;
+}
+
+.choose-window{
+  display: flex;
+  justify-content: space-around;
+  margin: 0 0 1rem 0;
+  border-bottom: 1px solid #DADCE0;
+  width: 100%;
+}
+
+.placecard-desc{
+  font-size: 1.5vmin;
+  color: rgb(69, 69, 69);
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+}
+
+.placecard-desc > div {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.material-icons.close {
+  margin-left: 5px;
+  font-size: 1.5vmin;
+  color: rgb(171, 168, 168);
+  position: absolute;
+  right: 0;
+  margin-right: 10px;
+  font-size: 2.5vmin;
+  margin-top: 10px;
+}
+
+.material-icons.close:hover{
+  cursor: pointer;
+  color: #368dff;
+}
+
+.close-button{
+  width: 100%;
+  display: flex;
+  justify-content: right;
+}
+
+.map {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  top: 9vh;
+  height: 90vh;
+  width: 100%;
+}
+
+.address, .distance {
+  display: flex;
+  align-items: center;
+  font-size: 1.5vmin;
+  margin-top: 30px;
+}
+
+.address > .material-icons, .distance > .material-icons {
+  margin-left: 0 !important;
+  margin-right: 15px;
+}
+
+.app-placecard.invisible{
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
 }

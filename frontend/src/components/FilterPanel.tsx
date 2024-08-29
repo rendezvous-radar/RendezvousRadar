@@ -176,8 +176,8 @@ export default function FilterPanel(
             {
                 isWrong && 
                 <div className="error-msg">
-                    <p>Please select at least one filter per category, and select a proper number that doesn't exceed 30 km for the radius.</p>
-                    <button onClick={() => setIsWrong(false)}>x</button>
+                    <div>Select at least one filter per category, and a proper number that doesn't exceed 30 km for the radius.</div>
+                    <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
                 </div>
             }
         </div>

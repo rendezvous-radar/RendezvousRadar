@@ -18,5 +18,7 @@ export interface Pois {
     lat: number,
     lon: number,
     name: string,
-    type: string // Can be food, nature, sports, shopping, uncategorized_poi
+    address: string,
+    description: string, // Specify what it is (restaraunt, car dealership, etc)
+    type: string // Can be food, nature, sports, shopping, uncategorized_poi (broad category)
 }

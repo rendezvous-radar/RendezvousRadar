@@ -1,19 +1,20 @@
 import React from 'react';
 import FilterPanel from './FilterPanel';
 import NavBar from './NavBar';
-import { Pois, QueryType } from '../Interfaces';
+import { Coordinates, Pois, QueryType } from '../Interfaces';
 import axios from "axios";
 
 /**
  * Search Component
- *  
+ * @param {Object} props - The component props.
+ * @param {React.Dispatch<React.SetStateAction<Array<Pois>>>} props.setPois Sets the list of pois
+ * @param {React.Dispatch<React.SetStateAction<Coordinates>>} props.setCooordinates Sets the coordinates
  * @returns {JSX.Element} A React JSX element representing the Search Component, the search section of the website
 */
 export default function Search(props: {
-    setPois: React.Dispatch<React.SetStateAction<Array<Pois>>>
+    setPois: React.Dispatch<React.SetStateAction<Array<Pois>>>,
+    setCoordinates: React.Dispatch<React.SetStateAction<Coordinates>>
     }) : JSX.Element {
-    // State for the geocoded longitude and latitude
-    const [coordinates, setCoordinates] = React.useState({lat: "43.796656647925026", lon: "-79.42200704246716"})
 
     // Location found state
     const [isFound, setIsFound] = React.useState(false);
@@ -41,6 +42,7 @@ export default function Search(props: {
     // Where the API is called, should add loading symbol, etc
     // TODO: Search is only set by the filter-options, we must also add an additional state for the Model's output
     // TODO: Call backend
+    // TODO: Set isFound state, coordinates, and poi list
     React.useEffect(() => {
         if (search) {
             // CALL BACKEND
