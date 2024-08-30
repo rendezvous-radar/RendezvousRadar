@@ -17,7 +17,7 @@ export default function SearchBar(props: {setAddress: React.Dispatch<React.SetSt
     return ( 
         <div className="SearchBar">
             <span className="material-icons searchIcon">search</span>
-            <input className='searchInput' onChange={handleChange}></input>
+            <input className='searchInput' onChange={handleChange} placeholder="Vaughan, Ontario, Canada"></input>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { QueryType } from '../Interfaces';
+import SearchBar from './SearchBar';
 
 /**
  * FilterPanel Component
@@ -23,6 +24,12 @@ export default function FilterPanel(
 
     // Show Error Message State
     const [isWrong, setIsWrong] = React.useState<boolean>(false);
+
+    // State to determine filter form versus AI search
+    const [searchType, setSearchType] = React.useState<string>("manual");
+
+    // AI Input
+    const [aiInput, setAIInput] = React.useState<string>("");
 
     const handleRadiusClick = (radius: string) => {
         props.setQuery(prevQuery => ({
@@ -56,6 +63,10 @@ export default function FilterPanel(
         }));
     };
 
+    const handleFilterOptionClick = (event: React.MouseEvent<HTMLParagraphElement>) => {
+        setSearchType(event.currentTarget.className);
+    }
+
     const handleApplyFilterClick = () => {
 
         // Validate query fields
@@ -72,7 +83,6 @@ export default function FilterPanel(
                 console.log(Number(props.query.radius))
         }
 
-        // TODO: Error Handling: Check that radius doesn't exceed maximum, display messages for missing specific queries
         else{
             setIsWrong(true);
             console.log("Something's wrong")
@@ -80,106 +90,131 @@ export default function FilterPanel(
 
     }
 
+    // Sets address to current input value
+    const handleAiInput = (event: ChangeEvent<HTMLInputElement>) => {
+        setAIInput(event?.target.value);
+    }
+
+    //TODO: DO AI Query here!!
+    const handleAIQuery = () => {
+        // Call Backend and setQuery state
+
+    }
+
+    const activeStyle = {"borderBottom": "2px solid #368DFF", "color": "#368DFF"} // Sets the style of the active window
+
     return ( 
         <div className={`filter-panel ${props.className}`}>
-            <h3> Filters </h3>
+            <div className="choose-window-filter"> 
+                <p className="manual" onClick={handleFilterOptionClick} style={searchType === "manual" ? activeStyle : {}}>Manual Filters</p>
+                <p className="ai-powered" onClick={handleFilterOptionClick} style={searchType === "ai-powered" ? activeStyle : {}}>AI Powered Search</p>
+            </div>
             
-            <div className="filter-inputs">
-                <h4>Radius:</h4>
-                {['1', '5', '10', '20'].map(radius => (
+            <div className={`${searchType === "manual" ? "visible-panel" : "invisible-panel"}`}>
+                <div className="filter-inputs">
+                    <h4>Radius:</h4>
+                    {['1', '5', '10', '20'].map(radius => (
+                        <button
+                            key={radius}
+                            className={props.query.radius == radius ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleRadiusClick(radius)}
+                        >
+                            {radius} km
+                        </button>
+                    ))}
                     <button
-                        key={radius}
-                        className={props.query.radius == radius ? 'option-button selected' : 'option-button'}
-                        onClick={() => handleRadiusClick(radius)}
+                        key="custom"
+                        className={isCustomRadius ? 'option-button selected' : 'option-button'}
+                        onClick={handleIsCustomRadius}
                     >
-                        {radius} km
+                        Custom
                     </button>
-                ))}
-                <button
-                    key="custom"
-                    className={isCustomRadius ? 'option-button selected' : 'option-button'}
-                    onClick={handleIsCustomRadius}
-                >
-                    Custom
-                </button>
 
-                {isCustomRadius && 
-                    <div className="custom-radius">
-                        <h4> Enter Radius: </h4>
-                        <input onChange={handleCustomRadiusInput}></input>
-                        <h4> km </h4>
+                    {isCustomRadius && 
+                        <div className="custom-radius">
+                            <h4> Enter Radius: </h4>
+                            <input onChange={handleCustomRadiusInput}></input>
+                            <h4> km </h4>
+                        </div>
+                    }
+                </div>
+
+                <div className="filter-inputs">
+                    <h4>Experience:</h4>
+                    {['Romantic', 'Family-Friendly', 'Adventure', 'Relaxation', 'Cultural', 'Educational'].map(experience => (
+                        <button
+                            key={experience}
+                            className={props.query.experience.includes(experience) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('experience', experience)}
+                        >
+                            {experience}
+                        </button>))}
+                </div>
+
+                <div className="filter-inputs">
+                    <h4>Activity:</h4>
+                    {['Outdoor', 'Indoor', 'Sports', 'Dining', 'Shopping', 'Entertainment'].map(activity => (
+                        <button
+                            key={activity}
+                            className={props.query.activity.includes(activity) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('activity', activity)}
+                        >
+                            {activity}
+                        </button>))}
+                </div>
+                
+                <div className="filter-inputs">
+                    <h4>Audience:</h4>
+                    {['Couples', 'Families', 'Groups', 'Solo'].map(audience => (
+                        <button
+                            key={audience}
+                            className={props.query.audience.includes(audience) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('audience', audience)}
+                        >
+                            {audience}
+                        </button>))}
+                </div>
+
+                <div className="filter-inputs">
+                    <h4>Time:</h4>
+                    {['Morning', 'Afternoon', 'Evening', 'Night'].map(time => (
+                        <button
+                            key={time}
+                            className={props.query.time.includes(time) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('time', time)}
+                        >
+                            {time}
+                        </button>))}
+                </div>
+                
+                <div className="filter-inputs">
+                    <h4>Season:</h4>
+                    {['Winter', 'Spring', 'Summer', 'Fall'].map(season => (
+                        <button
+                            key={season}
+                            className={props.query.season.includes(season) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('season', season)}
+                        >
+                            {season}
+                        </button>))}
+
+                    <button className='option-button filter' onClick={() => handleApplyFilterClick()}>Apply Filters</button>
+                </div>
+                {
+                    isWrong && 
+                    <div className="error-msg">
+                        <div>Select at least one filter per category, and a proper number that doesn't exceed 30 km for the radius.</div>
+                        <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
                     </div>
                 }
             </div>
 
-            <div className="filter-inputs">
-                <h4>Experience:</h4>
-                {['Romantic', 'Family-Friendly', 'Adventure', 'Relaxation', 'Cultural', 'Educational'].map(experience => (
-                    <button
-                        key={experience}
-                        className={props.query.experience.includes(experience) ? 'option-button selected' : 'option-button'}
-                        onClick={() => handleFilterClick('experience', experience)}
-                    >
-                        {experience}
-                    </button>))}
+            <div className={`ai-panel ${searchType === "ai-powered" ? "visible-panel" : "invisible-panel"}`}>
+                <input className="ai-search" placeholder='Give me some romantic date spots...' onChange={handleAiInput}></input>
+                <button className="ai-button" onClick={handleAIQuery}><span className="material-icons searchIcon">search</span></button>
             </div>
 
-            <div className="filter-inputs">
-                <h4>Activity:</h4>
-                {['Outdoor', 'Indoor', 'Sports', 'Dining', 'Shopping', 'Entertainment'].map(activity => (
-                    <button
-                        key={activity}
-                        className={props.query.activity.includes(activity) ? 'option-button selected' : 'option-button'}
-                        onClick={() => handleFilterClick('activity', activity)}
-                    >
-                        {activity}
-                    </button>))}
-            </div>
-            
-            <div className="filter-inputs">
-                <h4>Audience:</h4>
-                {['Couples', 'Families', 'Groups', 'Solo'].map(audience => (
-                    <button
-                        key={audience}
-                        className={props.query.audience.includes(audience) ? 'option-button selected' : 'option-button'}
-                        onClick={() => handleFilterClick('audience', audience)}
-                    >
-                        {audience}
-                    </button>))}
-            </div>
-
-            <div className="filter-inputs">
-                <h4>Time:</h4>
-                {['Morning', 'Afternoon', 'Evening', 'Night'].map(time => (
-                    <button
-                        key={time}
-                        className={props.query.time.includes(time) ? 'option-button selected' : 'option-button'}
-                        onClick={() => handleFilterClick('time', time)}
-                    >
-                        {time}
-                    </button>))}
-            </div>
-            
-            <div className="filter-inputs">
-                <h4>Season:</h4>
-                {['Winter', 'Spring', 'Summer', 'Fall'].map(season => (
-                    <button
-                        key={season}
-                        className={props.query.season.includes(season) ? 'option-button selected' : 'option-button'}
-                        onClick={() => handleFilterClick('season', season)}
-                    >
-                        {season}
-                    </button>))}
-
-                <button className='option-button filter' onClick={() => handleApplyFilterClick()}>Apply Filters</button>
-            </div>
-            {
-                isWrong && 
-                <div className="error-msg">
-                    <div>Select at least one filter per category, and a proper number that doesn't exceed 30 km for the radius.</div>
-                    <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
-                </div>
-            }
-        </div>
+        </div> 
+        
     );
 }

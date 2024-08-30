@@ -50,7 +50,7 @@ export default function PlaceCard(props: {
         <div className={`app-placecard ${props.hidden ? 'invisible' : ''}`}>
             <div className="close-button"><span className="material-icons close" onClick={handleCloseButton}>close</span></div>
             <h2>{props.poi.name}</h2>
-            <p className="placecard-desc">{props.poi.description} {icon !== "" && <div>•<span className="material-icons">{icon}</span></div>}</p>
+            <p className="placecard-desc">{props.poi.description} {icon !== "" && <span>•<span className="material-icons">{icon}</span></span>}</p>
             <div className="choose-window">
                 <p className="overview">Overview</p>
             </div>
