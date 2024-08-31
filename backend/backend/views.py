@@ -30,6 +30,42 @@ def class_to_activity(classifications):
     # Return the key-value pairs of matching activities
     return [(row['Key'], row['Value']) for _, row in matching_activities.iterrows()]
 
+def geocodeapi(lat, lon):
+    url = f"https://nominatim.openstreetmap.org/reverse?format=geojson&lat={lat}&lon={lon}"
+
+    headers = {
+        'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder", # TODO: Change this
+        "User-Agent": "Rendezvous-Radar" 
+    }
+
+    # Make the API call
+    try: 
+        response = requests.get(url, headers=headers)
+        response.raise_for_status() # Raise excetion for HTTP errors
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return ""
+    except ValueError:
+        return ""
+    
+    address = data.get("features", [])[0].get("properties", {}).get("address", {})
+
+    if address.get('house_number') and address.get('road'):
+        first_part = f"{address.get('house_number', '')} {address.get('road', '')}"
+    else:
+        first_part = address.get('house_number', '') or address.get('road', '')
+    
+
+    address_parts = [
+        first_part,
+        address.get('city', ''),
+        address.get('state', ''),
+        address.get('postcode', '')
+    ]
+
+    address_parts = [part for part in address_parts if part]
+
+    return ", ".join(address_parts)
 
 # Finds amenities near address
 # Example url: http://127.0.0.1:8000/search-location/?address=Toronto&radius=10&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
@@ -106,7 +142,8 @@ def find_poi(request):
     query = "[out:json];("
 
     for index in range(len(valid_pairs)):
-        query += f'node(around:{radius},{lat},{lon})["{valid_pairs[index][0]}"="{valid_pairs[index][1]}"];'
+        query += f'node(around:{radius},{lat},{lon})["{valid_pairs[index][0]}"="{valid_pairs[index][1]}"]["name"];'
+                  
     
     query += ");out center;"
 
@@ -123,6 +160,44 @@ def find_poi(request):
         return JsonResponse({'error': str(e)}, status=500)
     except ValueError:
         return JsonResponse({'error': 'Invalid response format from API'}, status=500)
+
+    # Adding the latitude and longitude to the response
+    
+    data["coordinates"] = {"lat": lat, "lon": lon}
+
+    # Limits number of returned POIs
+    if "elements" in data:
+        data["elements"] = data["elements"][0:5] 
+
+    poi_list = data.get("elements", [])
+    
+    for poi in poi_list:
+        if "tags" in poi:
+            address = ""
+            addr_city = poi["tags"].get("addr:city", "")
+            addr_housenumber = poi["tags"].get("addr:housenumber", "")
+            addr_postcode = poi["tags"].get("addr:postcode", "")
+            addr_street = poi["tags"].get("addr:street", "")
+            addr_state = poi["tags"].get("addr:state", "")
+
+            # If house number or street is missing, query the API
+            if not addr_housenumber or not addr_street:
+                address = geocodeapi(poi.get("lat", 0), poi.get("lon", 0))
+
+            else:
+
+                address_parts = [
+                    addr_housenumber + " " + addr_street,
+                    addr_city,
+                    addr_state,
+                    addr_postcode
+                ]
+
+                address_parts = [part for part in address_parts if part]
+
+                address = ", ".join(address_parts)
+
+            poi["tags"]["address"] = address
 
     # Return the data as a JSON response
     return JsonResponse(data, safe=False)

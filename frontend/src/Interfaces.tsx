@@ -14,11 +14,31 @@ export interface Coordinates {
 
 // TODO: Determine what a POI will contain
 export interface Pois {
-    id: string,
+    id: number,
     lat: number,
     lon: number,
+    tags: PoiTags
+}
+
+export interface PoiTags {
+    amenity: string,
     name: string,
+    cuisine: string,
+    takeaway: string,
+    wheelchair: string,
+    website: string,
+    phone: string,
     address: string,
-    description: string, // Specify what it is (restaraunt, car dealership, etc)
-    type: string // Can be food, nature, sports, shopping, uncategorized_poi (broad category)
+    outdoor_seating: string,
+    opening_hours: string,
+    indoor_seating: string,
+    drive_through: string
+    shop: string,
+    tourism: string,
+    leisure: string,
+    office: string,
+    craft: string,
+    historic: string,
+    email: string,
+    description: string
 }
