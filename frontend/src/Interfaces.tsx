@@ -21,25 +21,25 @@ export interface Pois {
 }
 
 export interface PoiTags {
-    amenity: string,
-    name: string,
-    cuisine: string,
-    takeaway: string,
+    [key: string]: string;
+    amenity: string, // Check
+    name: string, // Check
+    cuisine: string, // Check
+    takeaway: string, 
     wheelchair: string,
-    website: string,
-    phone: string,
-    address: string,
+    website: string, 
+    phone: string, 
+    address: string, // Check
     outdoor_seating: string,
     opening_hours: string,
     indoor_seating: string,
     drive_through: string
-    shop: string,
-    tourism: string,
-    leisure: string,
-    office: string,
-    craft: string,
-    historic: string,
+    shop: string, // Check
+    tourism: string, // Check
+    leisure: string, // Check
+    craft: string, // Check
+    historic: string, // Check
     email: string,
-    description: string,
+    description: string, // Check
     category: string // food, nature, shopping, sports, uncategorized_poi
 }

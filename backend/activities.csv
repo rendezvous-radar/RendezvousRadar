@@ -1,4 +1,4 @@
-Activity,Key,Value,Experience,Activity,Audience,Time,Season
+Activity,Key,Value,Experience,Activity_type,Audience,Time,Season
 Zipline,aerialway,zip_line,"family-friendly, adventure","outdoor, sports","families, groups, couples, solo","morning, afternoon, evening, night","summer, spring, autumn"
 Arts Centre,amenity,arts_centre,"cultural, educational, relaxation","entertainment, indoor","families, groups, couples, solo","morning, afternoon, evening, night","summer, spring, autumn, winter"
 Bar,amenity,pub,relaxation,"dining, sports, indoor, entertainment","families, couples, groups, solo","evening, night, afternoon, morning","summer, winter, spring, autumn"
@@ -99,7 +99,7 @@ Massage Shop,shop,massage,relaxation,indoor,"couples, solo, groups","morning, af
 Salon,shop,salon,relaxation,indoor,"couples, solo, groups","morning, afternoon, evening","summer, spring, autumn, winter"
 Shopping Centre,shop,shopping_centre,"family-friendly, cultural","shopping, indoor","couples, families, groups, solo","morning, afternoon, evening","summer, spring, autumn, winter"
 Sports Shop,shop,sports,"family-friendly, cultural","shopping, indoor, sports","couples, families, groups, solo","morning, afternoon, evening","summer, spring, autumn, winter"
-Tattoo Studio,shop,tattoo,,"shopping, indoor","couples, solo, groups","morning, afternoon, evening","summer, spring, autumn, winter"
+Tattoo Studio,shop,tattoo,relaxation,"shopping, indoor","couples, solo, groups","morning, afternoon, evening","summer, spring, autumn, winter"
 Toy Shop,shop,toys,"family-friendly, cultural","shopping, indoor, sports","couples, families, groups, solo","morning, afternoon, evening","summer, spring, autumn, winter"
 Aquarium,tourism,aquarium,"romantic, family-friendly, adventure, relaxation, educational",indoor,"couples, families, groups, solo","morning, afternoon, evening","summer, spring, autumn, winter"
 Attraction,tourism,attraction,"romantic, family-friendly, adventure, relaxation, educational",indoor,"couples, families, groups, solo","morning, afternoon, evening","summer, spring, autumn, winter"
