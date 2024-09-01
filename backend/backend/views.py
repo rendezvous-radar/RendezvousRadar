@@ -67,6 +67,32 @@ def geocodeapi(lat, lon):
 
     return ", ".join(address_parts)
 
+def categorize_poi(poi):
+    tags = poi.get('tags', {})
+
+    # Food Category
+    if tags.get('amenity') in ['restaurant', 'cafe', 'fast_food', 'bar', 'pub', 'ice_cream'] or 'cuisine' in tags:
+        return 'food'
+    
+    # Nature category
+    if tags.get('leisure') in ['park', 'nature_reserve', 'garden'] or \
+       tags.get('natural') in ['wood', 'water', 'tree'] or \
+       tags.get('tourism') in ['picnic_site', 'viewpoint'] or \
+       tags.get('landuse') == 'forest':
+        return 'nature'
+    
+    # Shopping category
+    if 'shop' in tags or tags.get('amenity') in ['marketplace', 'pharmacy', 'convenience', 'retail']:
+        return 'shopping'
+    
+    # Sports category
+    if tags.get('leisure') in ['sports_centre', 'fitness_centre', 'stadium', 'pitch', 'swimming_pool', 'bowling_alley'] or \
+       'sport' in tags:
+        return 'sports'
+    
+    # Uncategorized POI
+    return 'uncategorized_poi'
+
 # Finds amenities near address
 # Example url: http://127.0.0.1:8000/search-location/?address=Toronto&radius=10&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
 def find_poi(request):
@@ -167,11 +193,12 @@ def find_poi(request):
 
     # Limits number of returned POIs
     if "elements" in data:
-        data["elements"] = data["elements"][0:5] 
+        data["elements"] = data["elements"][0:(int(radius) // 100) - 1] 
 
     poi_list = data.get("elements", [])
     
     for poi in poi_list:
+        # Add address to each POI and add overall category for markers (food, nature, shopping, sports, uncategorized_poi)
         if "tags" in poi:
             address = ""
             addr_city = poi["tags"].get("addr:city", "")
@@ -198,6 +225,8 @@ def find_poi(request):
                 address = ", ".join(address_parts)
 
             poi["tags"]["address"] = address
+
+            poi["tags"]["category"] = categorize_poi(poi)
 
     # Return the data as a JSON response
     return JsonResponse(data, safe=False)

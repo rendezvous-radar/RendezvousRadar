@@ -40,5 +40,6 @@ export interface PoiTags {
     craft: string,
     historic: string,
     email: string,
-    description: string
+    description: string,
+    category: string // food, nature, shopping, sports, uncategorized_poi
 }
