@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pois } from '../Interfaces'
+import { Pois, PoiTags } from '../Interfaces'
 
 /**
  * Placecard Component
@@ -21,9 +21,14 @@ export default function PlaceCard(props: {
     const [desc, setDesc] = React.useState(""); // Sets description for the POI
     const [icon, setIcon] = React.useState(""); // Sets icon for the POI
 
-    const getFirstValidTag = (tags) => {
+    const getFirstValidTag = (tags : PoiTags) : String | undefined => {
         const tagOrder = ['amenity', 'shop', 'tourism', 'leisure', 'craft', 'historic'];
-        return tagOrder.find(tag => tags[tag]);
+        for(const tag in tagOrder){
+            if(tags.tag){
+                return tag;
+            }
+        }
+        return;
     };
 
     React.useEffect(() => {
@@ -44,7 +49,7 @@ export default function PlaceCard(props: {
                 setIcon("");
         }
 
-        const validTag = getFirstValidTag(props.poi.tags);
+        const validTag : String | undefined = getFirstValidTag(props.poi.tags);
         
         if(validTag){
             // If POI is amenity/restaurant
@@ -57,7 +62,7 @@ export default function PlaceCard(props: {
                 // Amenity is a shop
                 setDesc(props.poi.tags.shop.replace(/_/g, ' ').toUpperCase() + " shop");
             } else {
-                setDesc(props.poi.tags[validTag]?.replace(/_/g, ' ').toUpperCase());
+                setDesc(props.poi.tags.validTag?.replace(/_/g, ' ').toUpperCase());
             }
         } else {
             setDesc("");

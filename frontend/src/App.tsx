@@ -45,7 +45,7 @@ function App() {
         ""
       }
 
-      <PlaceCard key={"12"} poi={{id: "12", lat: 72, lon: 72, name: "Jerry's House", address: "123 King Street", description: "The home of Jerrbear", type: "food"}} distance={82} setHidden={setHidePlacecard} hidden={hidePlacecard}></PlaceCard>
+      {/* <PlaceCard key={"12"} poi={{id: "12", lat: 72, lon: 72, name: "Jerry's House", address: "123 King Street", description: "The home of Jerrbear", type: "food"}} distance={82} setHidden={setHidePlacecard} hidden={hidePlacecard}></PlaceCard> */}
     </>
   )
 }

@@ -14,10 +14,14 @@ export interface Coordinates {
 
 // TODO: Determine what a POI will contain
 export interface Pois {
-    id: number,
+    id: string,
     lat: number,
     lon: number,
-    tags: PoiTags
+    tags: PoiTags,
+    name: string,
+    type: string,
+    address: string,
+    description: string
 }
 
 export interface PoiTags {
