@@ -36,7 +36,7 @@ function App() {
   
   return (
     <>
-      <Search setPois={setPois} setCoordinates={setCoordinates}></Search>
+      <Search setPois={setPois} setCoordinates={setCoordinates} coordinates={coordinates}></Search>
       <Map pois={pois} setPoiIndex={setPoiIndex} coordinates={coordinates} setHidePlacecard={setHidePlacecard}></Map>
       {
         pois.length > 0 ? 
@@ -44,8 +44,6 @@ function App() {
         <PlaceCard key={pois[poiIndex].id} poi={pois[poiIndex]} distance={calcDistance(Number(coordinates.lat), Number(coordinates.lon), pois[poiIndex].lat, pois[poiIndex].lon)} setHidden={setHidePlacecard} hidden={hidePlacecard}></PlaceCard> :
         ""
       }
-
-      {/* <PlaceCard key={"12"} poi={{id: "12", lat: 72, lon: 72, name: "Jerry's House", address: "123 King Street", description: "The home of Jerrbear", type: "food"}} distance={82} setHidden={setHidePlacecard} hidden={hidePlacecard}></PlaceCard> */}
     </>
   )
 }

@@ -1,10 +1,14 @@
 export interface QueryType {
-    radius: string,
+    radius: number,
     experience: Array<string>,
     activity: Array<string>,
     audience: Array<string>,
     time: Array<string>,
     season: Array<string>
+}
+
+export interface CoordinateResponse {
+    data: Coordinates
 }
 
 export interface Coordinates {
@@ -31,11 +35,11 @@ export interface PoiTags {
     cuisine: string, // Check
     takeaway: string, 
     wheelchair: string,
-    website: string, 
-    phone: string, 
+    website: string, // Check
+    phone: string, // Check
     address: string, // Check
     outdoor_seating: string,
-    opening_hours: string,
+    opening_hours: string, // Check kinda
     indoor_seating: string,
     drive_through: string
     shop: string, // Check
@@ -43,7 +47,11 @@ export interface PoiTags {
     leisure: string, // Check
     craft: string, // Check
     historic: string, // Check
-    email: string,
+    email: string, // Check
     description: string, // Check
     category: string // food, nature, shopping, sports, uncategorized_poi
+}
+
+export interface PoiResponse {
+    data: {element: Array<Pois>}
 }

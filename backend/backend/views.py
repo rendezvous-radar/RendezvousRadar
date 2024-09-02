@@ -93,11 +93,17 @@ def categorize_poi(poi):
     # Uncategorized POI
     return 'uncategorized_poi'
 
+# Helper function to split a list into batches.
+def batch_list(lst, batch_size):
+    for i in range(0, len(lst), batch_size):
+        yield lst[i:i + batch_size]
+
 # Finds amenities near address
-# Example url: http://127.0.0.1:8000/search-location/?address=Toronto&radius=10&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
+# Example url: http://127.0.0.1:8000/search-location/?lat=43.6534817&lon=-79.3839347&radius=1000&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
 def find_poi(request):
     # Get parameters from query parameters
-    faddr = request.GET.get('address')
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
     radius = request.GET.get('radius')
     experience = request.GET.get('experiences')
     activity = request.GET.get('activity')
@@ -105,48 +111,16 @@ def find_poi(request):
     season = request.GET.get('seasons')
     time = request.GET.get('times')
 
-    if not faddr or not radius or not experience or not activity or not audience or not season or not time:
+    if not lat or not lon or not radius or not experience or not activity or not audience or not season or not time:
         return JsonResponse({'error': 'Parameter(s) are missing'}, status=400)
     
     # Splitting comma separated parameters into 
     experience_list = experience.split(',')
+
     activity_list = activity.split(',')
     audience_list = audience.split(',')
     season_list = season.split(',')
     time_list = time.split(',')
-
-    # Geocoding endpoint
-    url = f"https://nominatim.openstreetmap.org/search?q={faddr}&format=json"
-    headers = {
-        'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder", # TODO: Change this
-        "User-Agent": "Rendezvous-Radar" 
-    }
-
-    # Make the API call
-    try: 
-        response = requests.get(url, headers=headers)
-        response.raise_for_status() # Raise excetion for HTTP errors
-        data = response.json()
-    except requests.exceptions.RequestException as e:
-        return JsonResponse({'error': str(e)}, status=500)
-    except ValueError:
-        return JsonResponse({'error': 'Invalid response format from API'}, status=500)
-
-    # Check if the request was successful
-    if response.status_code == 200:
-        data = response.json()  # Parse the JSON response
-    else:
-        return JsonResponse({'error': 'Failed to fetch data from the external API'}, status=500)
-
-    # Check if request returns at least one location
-    if len(data) < 1 :
-        return JsonResponse({'error': 'No locations found.'}, status=500)
-
-    if "lat" not in data[0] or "lon" not in data[0]:
-        return JsonResponse({'error': 'Error in API response formatting.'}, status=500)
-    
-    # Retrieve coordinates from response
-    lat, lon = data[0]["lat"], data[0]["lon"]
 
     query_dict = {
         'Experience': experience_list,
@@ -163,41 +137,47 @@ def find_poi(request):
         return JsonResponse({'error': 'No activities found.'}, status=400)
     
 
-    # Creating the url and query to find the activities
+    batch_size = 10
+
     url = "https://overpass-api.de/api/interpreter"
-    query = "[out:json];("
+    all_pois = []
 
-    for index in range(len(valid_pairs)):
-        query += f'node(around:{radius},{lat},{lon})["{valid_pairs[index][0]}"="{valid_pairs[index][1]}"]["name"];'
-                  
-    
-    query += ");out center;"
+    for batch in batch_list(valid_pairs, batch_size):
+        # Creating the query for each batch
+        query = "[out:json];("
+        for pair in batch:
+            key, value = pair[0].strip(), pair[1].strip()  # Stripping any extra spaces
+            query += f'node(around:{radius},{lat},{lon})["{key}"="{value}"]["name"];'
+        query += ");out center;"
 
-    params = {
-        'data': query
-    }
+        params = {'data': query}
 
-    # Make the second API call to find th elist of places
-    try: 
-        response = requests.get(url, headers=headers, params=params)
-        response.raise_for_status() # Raise excetion for HTTP errors
-        data = response.json()
-    except requests.exceptions.RequestException as e:
-        return JsonResponse({'error': str(e)}, status=500)
-    except ValueError:
-        return JsonResponse({'error': 'Invalid response format from API'}, status=500)
+        headers = {
+            'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder",  # TODO: Change this
+            "User-Agent": "Rendezvous-Radar"
+        }
+
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            if "elements" in data:
+                all_pois.extend(data["elements"])
+
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid response format from API'}, status=500)
 
     # Adding the latitude and longitude to the response
-    
-    data["coordinates"] = {"lat": lat, "lon": lon}
+    data = {"coordinates": {"lat": lat, "lon": lon}, "elements": all_pois}
 
     # Limits number of returned POIs
-    if "elements" in data:
-        data["elements"] = data["elements"][0:(int(radius) // 100) - 1] 
+    data["elements"] = data["elements"][0:(int(radius) // 20) - 1] 
 
-    poi_list = data.get("elements", [])
     
-    for poi in poi_list:
+    for poi in data["elements"]:
         # Add address to each POI and add overall category for markers (food, nature, shopping, sports, uncategorized_poi)
         if "tags" in poi:
             address = ""
@@ -230,3 +210,46 @@ def find_poi(request):
 
     # Return the data as a JSON response
     return JsonResponse(data, safe=False)
+
+# Finds coordinates of an address
+# Example: http://127.0.0.1:8000/find-coords/?address=Toronto
+def findCoordinates(request):
+    address = request.GET.get('address')
+
+    if not address:
+        return JsonResponse({'error': 'Address is missing'}, status=400)
+
+    # Geocoding adrdress
+    url = f"https://nominatim.openstreetmap.org/search?q={address}&format=json"
+    headers = {
+        'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder", # TODO: Change this
+        "User-Agent": "Rendezvous-Radar" 
+    }
+
+    # Make the API call
+    try: 
+        response = requests.get(url, headers=headers)
+        response.raise_for_status() # Raise excetion for HTTP errors
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid response format from API'}, status=500)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        data = response.json()  # Parse the JSON response
+    else:
+        return JsonResponse({'error': 'Failed to fetch data from the external API'}, status=500)
+
+    # Check if request returns at least one location
+    if len(data) < 1 :
+        return JsonResponse({'error': 'No locations found.'}, status=500)
+
+    if "lat" not in data[0] or "lon" not in data[0]:
+        return JsonResponse({'error': 'Error in API response formatting.'}, status=500)
+    
+    data = {"lat": data[0]["lat"], "lon": data[0]["lon"]}
+
+    # Return data
+    return JsonResponse(data)

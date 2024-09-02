@@ -1,3 +1,4 @@
+import React from "react";
 import { ChangeEvent } from "react";
 
 /**
@@ -9,15 +10,23 @@ import { ChangeEvent } from "react";
 */
 export default function SearchBar(props: {setAddress: React.Dispatch<React.SetStateAction<string>>}) : JSX.Element {
 
+    // Input value
+    const [inputValue, setInputValue] = React.useState<string>("Vaughan, Ontario, Canada");
+
+    // Handling Submission
+    const handleSubmit = () => {
+        props.setAddress(inputValue);
+    }
+
     // Sets address to current input value
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        props.setAddress(event?.target.value);
+        setInputValue(event?.target.value);
     }
 
     return ( 
         <div className="SearchBar">
-            <span className="material-icons searchIcon">search</span>
             <input className='searchInput' onChange={handleChange} placeholder="Vaughan, Ontario, Canada"></input>
+            <button className="ai-button" onClick={handleSubmit}><span className="material-icons searchIcon">search</span></button>
         </div>
     );
 }

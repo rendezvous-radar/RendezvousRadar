@@ -29,6 +29,11 @@
   border: None;
   width: 100%;
   font-size: 1.2rem;
+  margin-left: 1rem;
+}
+
+.leaflet-control {
+  z-index: 1000;
 }
 
 .ai-search {
@@ -115,6 +120,7 @@
   transform: translateY(-20px);
   visibility: hidden;
   transition: 0.4s ease;
+  pointer-events: none;
 }
 
 .visible-panel {

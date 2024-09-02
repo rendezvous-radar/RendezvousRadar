@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
 import { QueryType } from '../Interfaces';
-import SearchBar from './SearchBar';
 
 /**
  * FilterPanel Component
@@ -10,13 +9,16 @@ import SearchBar from './SearchBar';
  * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setQuery Sets the query of the api call
  * @param {string} props.className Toggles visibility of the component
  * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setQuery Sets the query of the api call
+ * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setFilterHidden Sets the Filter panel to visible/invisible state
  * @returns {JSX.Element} A React JSX element representing the FilterPanel Component, the filter panel of the website
 */
 export default function FilterPanel(
     props: {
         query: QueryType, 
         setQuery: React.Dispatch<React.SetStateAction<QueryType>>, 
-        className: string, setSearch: React.Dispatch<React.SetStateAction<boolean>>
+        className: string, 
+        setSearch: React.Dispatch<React.SetStateAction<boolean>>,
+        setFilterHidden: React.Dispatch<React.SetStateAction<boolean>>
     }) : JSX.Element {    
 
     // Custom Radius State
@@ -31,7 +33,7 @@ export default function FilterPanel(
     // AI Input
     const [aiInput, setAIInput] = React.useState<string>("");
 
-    const handleRadiusClick = (radius: string) => {
+    const handleRadiusClick = (radius: number) => {
         props.setQuery(prevQuery => ({
             ...prevQuery,
             radius: radius
@@ -43,14 +45,14 @@ export default function FilterPanel(
         setIsCustomRadius(prevState => !prevState)
         props.setQuery(prevQuery => ({
             ...prevQuery,
-            radius: ""
+            radius: 0
         }));
     };
 
     const handleCustomRadiusInput = (event: ChangeEvent<HTMLInputElement>) => {
         props.setQuery(prevQuery => ({
             ...prevQuery,
-            radius: event.target.value
+            radius: Number(event.target.value)
         }));
     };
 
@@ -70,7 +72,7 @@ export default function FilterPanel(
     const handleApplyFilterClick = () => {
 
         // Validate query fields
-        if(props.query.radius !== "" &&
+        if(props.query.radius !== 0 &&
             !isNaN(Number(props.query.radius)) && 
             Number(props.query.radius) <= 30 &&
             props.query.experience.length !== 0 && 
@@ -80,7 +82,7 @@ export default function FilterPanel(
             props.query.season.length !== 0) {
                 setIsWrong(false);
                 props.setSearch(true);
-                console.log(Number(props.query.radius))
+                props.setFilterHidden(true);
         }
 
         else{
@@ -116,8 +118,8 @@ export default function FilterPanel(
                     {['1', '5', '10', '20'].map(radius => (
                         <button
                             key={radius}
-                            className={props.query.radius == radius ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleRadiusClick(radius)}
+                            className={props.query.radius == Number(radius) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleRadiusClick(Number(radius))}
                         >
                             {radius} km
                         </button>
@@ -141,11 +143,11 @@ export default function FilterPanel(
 
                 <div className="filter-inputs">
                     <h4>Experience:</h4>
-                    {['Romantic', 'Family-Friendly', 'Adventure', 'Relaxation', 'Cultural', 'Educational'].map(experience => (
+                    {['Romantic', 'Family-Friendly', 'Adventure', 'Relaxation', 'Cultural', 'Educational', 'Any'].map(experience => (
                         <button
                             key={experience}
-                            className={props.query.experience.includes(experience) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('experience', experience)}
+                            className={props.query.experience.includes(experience.toLowerCase()) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('experience', experience.toLowerCase())}
                         >
                             {experience}
                         </button>))}
@@ -153,11 +155,11 @@ export default function FilterPanel(
 
                 <div className="filter-inputs">
                     <h4>Activity:</h4>
-                    {['Outdoor', 'Indoor', 'Sports', 'Dining', 'Shopping', 'Entertainment'].map(activity => (
+                    {['Outdoor', 'Indoor', 'Sports', 'Dining', 'Shopping', 'Entertainment', 'Any'].map(activity => (
                         <button
                             key={activity}
-                            className={props.query.activity.includes(activity) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('activity', activity)}
+                            className={props.query.activity.includes(activity.toLowerCase()) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('activity', activity.toLowerCase())}
                         >
                             {activity}
                         </button>))}
@@ -165,11 +167,11 @@ export default function FilterPanel(
                 
                 <div className="filter-inputs">
                     <h4>Audience:</h4>
-                    {['Couples', 'Families', 'Groups', 'Solo'].map(audience => (
+                    {['Couples', 'Families', 'Groups', 'Solo', 'Any'].map(audience => (
                         <button
                             key={audience}
-                            className={props.query.audience.includes(audience) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('audience', audience)}
+                            className={props.query.audience.includes(audience.toLowerCase()) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('audience', audience.toLowerCase())}
                         >
                             {audience}
                         </button>))}
@@ -177,11 +179,11 @@ export default function FilterPanel(
 
                 <div className="filter-inputs">
                     <h4>Time:</h4>
-                    {['Morning', 'Afternoon', 'Evening', 'Night'].map(time => (
+                    {['Morning', 'Afternoon', 'Evening', 'Night', 'Any'].map(time => (
                         <button
                             key={time}
-                            className={props.query.time.includes(time) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('time', time)}
+                            className={props.query.time.includes(time.toLowerCase()) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('time', time.toLowerCase())}
                         >
                             {time}
                         </button>))}
@@ -189,11 +191,11 @@ export default function FilterPanel(
                 
                 <div className="filter-inputs">
                     <h4>Season:</h4>
-                    {['Winter', 'Spring', 'Summer', 'Fall'].map(season => (
+                    {['Winter', 'Spring', 'Summer', 'Fall', 'Any'].map(season => (
                         <button
                             key={season}
-                            className={props.query.season.includes(season) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('season', season)}
+                            className={props.query.season.includes(season.toLowerCase()) ? 'option-button selected' : 'option-button'}
+                            onClick={() => handleFilterClick('season', season.toLowerCase())}
                         >
                             {season}
                         </button>))}
