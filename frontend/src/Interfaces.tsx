@@ -33,14 +33,14 @@ export interface PoiTags {
     amenity: string, // Check
     name: string, // Check
     cuisine: string, // Check
-    takeaway: string, 
-    wheelchair: string,
+    takeaway: string, // Check
+    wheelchair: string, // Check
     website: string, // Check
     phone: string, // Check
     address: string, // Check
-    outdoor_seating: string,
-    opening_hours: string, // Check kinda
-    indoor_seating: string,
+    outdoor_seating: string, // Check
+    opening_hours: string, // Check
+    indoor_seating: string, // Check 
     drive_through: string
     shop: string, // Check
     tourism: string, // Check

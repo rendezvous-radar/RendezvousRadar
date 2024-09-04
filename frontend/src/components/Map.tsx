@@ -17,13 +17,15 @@ function UpdateMapView({ center }: { center: LatLngExpression }) {
  *  
  * @param {Object} props - The component props.
  * @param {Array<Pois>} props.pois The points of interest
- * @param {React.Dispatch<React.SetStateAction<number>>} props.setPoiIndex Sets the address of the API call
+ * @param {number} props.poiIndex The index into the POI list
+ * @param {React.Dispatch<React.SetStateAction<number>>} props.setPoiIndex The index into the POI array
  * @param {Coordinates} props.coordinates The coordinates to look around
  * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setHidePlacecard Sets the state for hidden
  * @returns {JSX.Element} A React JSX element representing the NavBar Component, the navigation bar of the website
 */
 export default function Map(props: {
     pois: Array<Pois>,
+    poiIndex: number,
     setPoiIndex: React.Dispatch<React.SetStateAction<number>>,
     coordinates: Coordinates,
     setHidePlacecard: React.Dispatch<React.SetStateAction<boolean>>}) : JSX.Element {
@@ -56,10 +58,10 @@ export default function Map(props: {
         <MapContainer center={mapCenter} zoom={zoomLevel} className="map">
           <UpdateMapView center={mapCenter}/>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {props.pois.map(pin => (
+          {props.pois.map((pin, index) => (
             <Marker key={pin.id} position={[pin.lat, pin.lon]} icon={
                 L.icon({
-                    iconUrl: `./assets/${pin.tags.category}.png`,
+                    iconUrl: `./assets/${props.poiIndex == index ? "selected" : pin.tags.category}.png`,
                     iconSize: [50, 50],
                     iconAnchor: [25, 50],
                 })} eventHandlers={{click: () => {

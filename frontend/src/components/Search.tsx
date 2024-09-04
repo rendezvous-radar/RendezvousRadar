@@ -8,14 +8,16 @@ import axios from "axios";
  * Search Component
  * @param {Object} props - The component props.
  * @param {React.Dispatch<React.SetStateAction<Array<Pois>>>} props.setPois Sets the list of pois
- * @param {React.Dispatch<React.SetStateAction<Coordinates>>} props.setCooordinates Sets the coordinates
  * @param {Coordinates} props.coordinates Coordinates of the query
+ * @param {React.Dispatch<React.SetStateAction<Coordinates>>} props.setCooordinates Sets the coordinates
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setLoading Sets the loading state
  * @returns {JSX.Element} A React JSX element representing the Search Component, the search section of the website
 */
 export default function Search(props: {
     setPois: React.Dispatch<React.SetStateAction<Array<Pois>>>,
     setCoordinates: React.Dispatch<React.SetStateAction<Coordinates>>,
-    coordinates: Coordinates
+    coordinates: Coordinates,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
     }) : JSX.Element {
 
     // State for opening and closing the filter panel menu
@@ -38,6 +40,7 @@ export default function Search(props: {
     const [address, setAddress] = React.useState<string>("Vaughan, Ontario, Canada");
 
     async function getPois() {
+        props.setLoading(true);
         try {
             const res = await axios.get(
                 `${import.meta.env.VITE_BACKEND_LINK}/search-location/?lat=${props.coordinates.lat}&lon=${props.coordinates.lon}&radius=${query.radius * 1000}&experiences=${query.experience.join(',')}&activity=${query.activity.join(',')}&audience=${query.audience.join(',')}&seasons=${query.season.join(',')}&times=${query.time.join(',')}`
@@ -48,11 +51,13 @@ export default function Search(props: {
         } catch (err) {
             // TODO: What to do with API call error
             console.log(err);
+        } finally {
+            props.setLoading(false);
         }
-        // SET POIs in list somewhere here
     }
 
     async function findCoordinates() {
+        props.setLoading(true)
         try {
             const res : CoordinateResponse = await axios.get(
                 `${import.meta.env.VITE_BACKEND_LINK}/find-coords/?address=${address}`,
@@ -66,6 +71,8 @@ export default function Search(props: {
 
         } catch (err) {
             console.log(err);
+        } finally {
+            props.setLoading(false);
         }
     }
     

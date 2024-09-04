@@ -21,15 +21,40 @@ export default function PlaceCard(props: {
     const [desc, setDesc] = React.useState(""); // Sets description for the POI
     const [icon, setIcon] = React.useState(""); // Sets icon for the POI
 
+    // Placecard information
+    const [isOverview, setIsOverview] = React.useState<boolean>(true);
+
+    // TODO: Find better way to do this
     const getFirstValidTag = (tags : PoiTags) : string | undefined => {
-        const tagOrder = ['amenity', 'shop', 'tourism', 'leisure', 'craft', 'historic'];
-        for(const tag in tagOrder){
-            if(tags[tag]){
-                return tag;
-            }
+        if (tags.amenity) {
+            return 'amenity';
+        }
+
+        if (tags.shop) {
+            return 'shop'
+        }
+        
+        if (tags.tourism) {
+            return 'tourism'
+        }
+
+        if (tags.leisure) {
+            return 'leisure'
+        }
+
+        if (tags.craft) {
+            return 'craft'
+        }
+
+        if (tags.historic) {
+            return 'historic'
         }
         return;
     };
+
+    const capitalize = (word : string) : string => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }
 
     React.useEffect(() => {
         switch(props.poi.tags.category.toLowerCase()) {
@@ -54,15 +79,15 @@ export default function PlaceCard(props: {
         if(validTag){
             // If POI is amenity/restaurant
             if (validTag == "amenity") {
-                setDesc((props.poi.tags.cuisine !== "" 
-                    ? props.poi.tags.cuisine.replace(/_/g, ' ').toUpperCase() + " " 
+                setDesc((props.poi.tags.cuisine 
+                    ? capitalize(props.poi.tags.cuisine.replace(/_/g, ' ')) + " " 
                     : ""
-                ) + props.poi.tags.amenity.replace(/_/g, ' ').toUpperCase());
+                ) + capitalize(props.poi.tags.amenity.replace(/_/g, ' ')));
             } else if (validTag == "shop") {
                 // Amenity is a shop
-                setDesc(props.poi.tags.shop.replace(/_/g, ' ').toUpperCase() + " shop");
+                setDesc(capitalize(props.poi.tags.shop.replace(/_/g, ' ') + " shop"));
             } else {
-                setDesc(props.poi.tags.validTag?.replace(/_/g, ' ').toUpperCase());
+                setDesc(capitalize(props.poi.tags.validTag?.replace(/_/g, ' ').toLocaleUpperCase()));
             }
         } else {
             setDesc("");
@@ -91,7 +116,10 @@ export default function PlaceCard(props: {
         ranges.forEach(range => {
             // Extract the days and time range
             const [days, time] = range.trim().split(' ');
-            
+    
+            // Add spaces around the dash in the time range
+            const formattedTime = time.replace('-', ' - ');
+    
             // Expand day ranges like Mo-We to Mo, Tu, We
             const expandedDays = days.split('-').map(day => daysMap[day.trim()]);
     
@@ -100,18 +128,25 @@ export default function PlaceCard(props: {
                 const endDay = Object.keys(daysMap).indexOf(days.split('-')[1].trim());
     
                 for (let i = startDay; i <= endDay; i++) {
-                    result.push(`${Object.values(daysMap)[i]}: ${time}`);
+                    result.push(`${Object.values(daysMap)[i]}: ${formattedTime}`);
                 }
             } else {
                 const singleDays = days.split(',').map(day => daysMap[day.trim()]);
                 singleDays.forEach(day => {
-                    result.push(`${day}: ${time}`);
+                    result.push(`${day}: ${formattedTime}`);
                 });
             }
         });
     
         return result;
+    };
+
+    const switchView = (state: boolean) => {
+        setIsOverview(state);
+        return "done";
     }
+
+    const activeStyle = {"borderBottom": "2px solid #368DFF", "color": "#368DFF"} // Sets the style of the active window
 
     return (
         <div className={`app-placecard ${props.hidden ? 'invisible' : ''}`}>
@@ -140,26 +175,94 @@ export default function PlaceCard(props: {
                 </p>
             }
             <div className="choose-window">
-                <p className="overview">Overview</p>
-                <p className="overview">About</p>
+                <p className="overview" style={isOverview ? activeStyle : {}} onClick={() => switchView(true)}>Overview</p>
+                <p className="overview" style={isOverview ? {} : activeStyle} onClick={() => switchView(false)}>About</p>
             </div>
-            <p className="distance"><span className="material-icons">straighten</span>{`${Math.round(props.distance * 100) / 100}km away`}</p>
-            <p className="address"><span className="material-icons">place</span>{props.poi.tags.address}</p>
-            {props.poi.tags.opening_hours && 
-                <p className="address"><span className="material-icons">schedule</span>{transformHours(props.poi.tags.opening_hours)}</p>
+
+            {isOverview &&
+                <div>
+                    <p className="distance"><span className="material-icons">straighten</span>{`${Math.round(props.distance * 100) / 100}km away`}</p>
+                    <p className="address"><span className="material-icons">place</span>{props.poi.tags.address}</p>
+                    {props.poi.tags.opening_hours && 
+                        <p className="address">
+                            <span className="material-icons">schedule</span>
+                            <ul className="opening-hours-list">
+                                {transformHours(props.poi.tags.opening_hours).map((hour, index) => (
+                                    <li key={index} className="opening-hours">{hour}</li>
+                                ))}
+                            </ul>
+                        </p>
+                    }
+
+                    {props.poi.tags.phone && 
+                        <p className="address"><span className="material-icons">phone</span>{props.poi.tags.phone}</p>
+                    }
+                    
+                    {props.poi.tags.website && 
+                        <a className="address website" href={props.poi.tags.website}><span className="material-icons">link</span>Website Link</a>
+                    }
+
+                    {props.poi.tags.email && 
+                        <p className="address"><span className="material-icons">email</span>{props.poi.tags.email}</p>
+                    }   
+                </div>
             }
 
-            {props.poi.tags.phone && 
-                <p className="address"><span className="material-icons">phone</span>{props.poi.tags.phone}</p>
-            }
-            
-            {props.poi.tags.website && 
-                <p className="address"><span className="material-icons">link</span>{props.poi.tags.website}</p>
-            }
+            {!isOverview &&
 
-            {props.poi.tags.email && 
-                <p className="address"><span className="material-icons">email</span>{props.poi.tags.email}</p>
-            }   
+                <div className="about-info-grid">
+                    {props.poi.tags.takeaway &&
+                        <p className="about-info">Takeaway 
+                            {
+                                props.poi.tags.takeaway == "yes" ?
+                                <span className="material-icons check">check</span> : 
+                                <span className="material-icons closed">closed</span>
+                            }
+                        </p>
+                    }
+
+                    {props.poi.tags.wheelchair &&
+                        <p className="about-info">Wheelchair 
+                        {
+                            props.poi.tags.wheelchair == "yes" ?
+                            <span className="material-icons check">check</span> : 
+                            <span className="material-icons closed">closed</span>
+                        }
+                    </p>
+                    }
+
+                    {props.poi.tags.drive_through &&
+                        <p className="about-info">Drive Through 
+                        {
+                            props.poi.tags.drive_through == "yes" ?
+                            <span className="material-icons check">check</span> : 
+                            <span className="material-icons closed">closed</span>
+                        }
+                    </p>
+                    }
+
+                    {props.poi.tags.outdoor_seating &&
+                        <p className="about-info">Outdoor Seating 
+                        {
+                            props.poi.tags.outdoor_seating == "yes" ?
+                            <span className="material-icons check">check</span> : 
+                            <span className="material-icons closed">closed</span>
+                        }
+                    </p>
+                    }
+
+                    {props.poi.tags.indoor_seating &&
+                        <p className="about-info">Indoor Seating 
+                        {
+                            props.poi.tags.indoor_seating == "yes" ?
+                            <span className="material-icons check">check</span> : 
+                            <span className="material-icons closed">closed</span>
+                        }
+                    </p>
+                    }
+                </div>
+
+            }
 
         </div>
     )

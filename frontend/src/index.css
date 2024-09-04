@@ -233,7 +233,7 @@ h4 {
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
   background-color: white;
   padding: 0.2vh 1.5vmax;
-  width: 15vw;
+  width: 20vw;
   position: absolute;
   height: 89.8vh;
   max-height: 89.8vh;
@@ -253,12 +253,17 @@ h4 {
 }
 
 .overview {
-  border-bottom: 2px solid #368dff;
-  color: #368dff;
   padding: 1vh;
   font-size:1.5vmin;
   font-weight: 500;
   margin: 0 !important;
+}
+
+.overview:hover {
+  background-color: rgba(205, 203, 203, 0.476);
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  cursor: pointer;
 }
 
 .choose-window{
@@ -287,6 +292,8 @@ h4 {
 .manual:hover, .ai-powered:hover{
   background-color: rgba(210, 208, 208, 0.626);
   cursor: pointer;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 .placecard-desc{
@@ -301,6 +308,7 @@ h4 {
   display: flex;
   align-items: center;
   margin-left: 5px;
+  color: rgb(130, 128, 128) !important;
 }
 
 .material-icons.close {
@@ -340,6 +348,7 @@ h4 {
   align-items: center;
   font-size: 1.5vmin;
   margin-top: 30px;
+  padding: 1vh 1vw !important;
 }
 
 .address > .material-icons, .distance > .material-icons {
@@ -381,4 +390,57 @@ h4 {
   font-size: 2.5vmin;
   color: white;
   vertical-align: middle;
+}
+
+.website{
+  color: black;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.website:hover{
+  background-color: rgba(205, 204, 204, 0.28);
+}
+
+.opening-hours {
+  padding: 1vh 0;
+  list-style: none;
+}
+
+.opening-hours-list {
+  padding: 0;
+}
+
+.about-info {
+  display: flex;
+  align-items: center;
+}
+
+.check, .closed {
+  margin-left: 0.5vmin;
+}
+
+.check {
+  color: rgb(121, 227, 85);
+}
+
+.closed {
+  color: rgb(242, 84, 84);
+  max-width: 24px;
+}
+
+.about-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px; 
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10000000;
+  transform: translate(-50%, -50%);
+  max-width: 10%;
+  height: auto;
 }

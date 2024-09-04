@@ -18,6 +18,9 @@ function App() {
   // State for the geocoded longitude and latitude
   const [coordinates, setCoordinates] = React.useState({lat: "43.796656647925026", lon: "-79.42200704246716"})
 
+  // Loading state for backend
+  const [isLoading, setLoading] = React.useState(false);
+
   // Calculates distance w/ haversine formula
   function calcDistance(lat1: number, lon1: number, lat2: number, lon2: number){
     const earthRadius = 6371
@@ -36,13 +39,19 @@ function App() {
   
   return (
     <>
-      <Search setPois={setPois} setCoordinates={setCoordinates} coordinates={coordinates}></Search>
-      <Map pois={pois} setPoiIndex={setPoiIndex} coordinates={coordinates} setHidePlacecard={setHidePlacecard}></Map>
+      <Search setPois={setPois} setCoordinates={setCoordinates} coordinates={coordinates} setLoading={setLoading}></Search>
+      <Map pois={pois} poiIndex={poiIndex} setPoiIndex={setPoiIndex} coordinates={coordinates} setHidePlacecard={setHidePlacecard}></Map>
       {
         pois.length > 0 ? 
 
         <PlaceCard key={pois[poiIndex].id} poi={pois[poiIndex]} distance={calcDistance(Number(coordinates.lat), Number(coordinates.lon), pois[poiIndex].lat, pois[poiIndex].lon)} setHidden={setHidePlacecard} hidden={hidePlacecard}></PlaceCard> :
         ""
+      }
+
+      {
+        isLoading && 
+
+        <img src="./assets/loading.gif" alt="Loading..." className="loading"/>
       }
     </>
   )
