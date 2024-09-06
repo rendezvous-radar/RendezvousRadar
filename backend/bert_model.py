@@ -316,44 +316,4 @@ with torch.no_grad():
         print(f'Time of Day Predictions: {preds_time}, True Labels: {labels_time}')
         print(f'Season Predictions: {preds_season}, True Labels: {labels_season}')
 
-def predict(text, model):
-    # Preprocess
-    inputs = tokenizer(text, padding=True, truncation=True, return_tensors='pt', max_length=128)
-    input_ids = inputs['input_ids']
-    attention_mask = inputs['attention_mask']
-
-    # Forward Pass
-    with torch.no_grad():
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-
-    # Interpret the output
-    # Assuming model output is a tuple of logits (one for each label category)
-    experience_logits, activity_logits, audience_logits, time_logits, season_logits = outputs
-
-    # Apply softmax to get probabilities
-    experience_probs = torch.softmax(experience_logits, dim=1)
-    activity_probs = torch.softmax(activity_logits, dim=1)
-    audience_probs = torch.softmax(audience_logits, dim=1)
-    time_probs = torch.softmax(time_logits, dim=1)
-    season_probs = torch.softmax(season_logits, dim=1)
-
-    # Convert probabilities to label predictions
-    experience_pred = num_labels['experience'][experience_probs.argmax()]
-    activity_pred = num_labels['activity'][activity_probs.argmax()]
-    audience_pred = num_labels['audience'][audience_probs.argmax()]
-    time_pred = num_labels['time'][time_probs.argmax()]
-    season_pred = num_labels['season'][season_probs.argmax()]
-
-    # Return the predictions
-    return {
-        'experience': experience_pred,
-        'activity': activity_pred,
-        'audience': audience_pred,
-        'time': time_pred,
-        'season': season_pred
-    }
-
-# Example usage
-text_input = "Looking for date spots"
-prediction = predict(text_input, model)
-print(prediction)
+torch.save(model.state_dict(), "model_state.pth")
