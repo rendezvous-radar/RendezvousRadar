@@ -1,1 +1,2 @@
 *.pth filter=lfs diff=lfs merge=lfs -text
+backend/backend/prediction/model.pth filter=lfs diff=lfs merge=lfs -text
