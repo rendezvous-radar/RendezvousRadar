@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from io import StringIO
 import os
+from .prediction.model import predict
 
 # Object of inputted classifications
 def class_to_activity(classifications):
@@ -98,38 +99,7 @@ def batch_list(lst, batch_size):
     for i in range(0, len(lst), batch_size):
         yield lst[i:i + batch_size]
 
-# Finds amenities near address
-# Example url: http://127.0.0.1:8000/search-location/?lat=43.6534817&lon=-79.3839347&radius=1000&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
-def find_poi(request):
-    # Get parameters from query parameters
-    lat = request.GET.get('lat')
-    lon = request.GET.get('lon')
-    radius = request.GET.get('radius')
-    experience = request.GET.get('experiences')
-    activity = request.GET.get('activity')
-    audience = request.GET.get('audience')
-    season = request.GET.get('seasons')
-    time = request.GET.get('times')
-
-    if not lat or not lon or not radius or not experience or not activity or not audience or not season or not time:
-        return JsonResponse({'error': 'Parameter(s) are missing'}, status=400)
-    
-    # Splitting comma separated parameters into 
-    experience_list = experience.split(',')
-
-    activity_list = activity.split(',')
-    audience_list = audience.split(',')
-    season_list = season.split(',')
-    time_list = time.split(',')
-
-    query_dict = {
-        'Experience': experience_list,
-        'Activity_type': activity_list,
-        'Audience': audience_list,
-        'Season': season_list,  
-        'Time': time_list
-    }
-
+def pairs_to_pois(query_dict, radius, lat, lon):
     # Valid key-value pairs based on the query_dict
     valid_pairs = class_to_activity(query_dict)
 
@@ -211,6 +181,40 @@ def find_poi(request):
     # Return the data as a JSON response
     return JsonResponse(data, safe=False)
 
+# Finds amenities near address
+# Example url: http://127.0.0.1:8000/search-location/?lat=43.6534817&lon=-79.3839347&radius=1000&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
+def find_poi(request):
+    # Get parameters from query parameters
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    radius = request.GET.get('radius')
+    experience = request.GET.get('experiences')
+    activity = request.GET.get('activity')
+    audience = request.GET.get('audience')
+    season = request.GET.get('seasons')
+    time = request.GET.get('times')
+
+    if not lat or not lon or not radius or not experience or not activity or not audience or not season or not time:
+        return JsonResponse({'error': 'Parameter(s) are missing'}, status=400)
+    
+    # Splitting comma separated parameters into 
+    experience_list = experience.split(',')
+
+    activity_list = activity.split(',')
+    audience_list = audience.split(',')
+    season_list = season.split(',')
+    time_list = time.split(',')
+
+    query_dict = {
+        'Experience': experience_list,
+        'Activity_type': activity_list,
+        'Audience': audience_list,
+        'Season': season_list,  
+        'Time': time_list
+    }
+
+    return pairs_to_pois(query_dict, radius, lat, lon)
+
 # Finds coordinates of an address
 # Example: http://127.0.0.1:8000/find-coords/?address=Toronto
 def findCoordinates(request):
@@ -253,3 +257,19 @@ def findCoordinates(request):
 
     # Return data
     return JsonResponse(data)
+
+# Finds amenities from prompt
+def findFromPrompt(request):
+    # Get parameters from query parameters
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    prompt = request.GET.get('prompt')
+    radius = request.GET.get('radius')
+
+    if not lat or not lon or not prompt:
+        return JsonResponse({'error': 'Parameter(s) are missing'}, status=400)
+    
+    # Returns prediction categorization from model
+    preds = predict(prompt)
+
+    return pairs_to_pois(preds, radius, lat, lon)

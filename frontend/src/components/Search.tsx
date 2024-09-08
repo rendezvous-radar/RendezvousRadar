@@ -76,7 +76,7 @@ export default function Search(props: {
         }
     }
     
-    // Where the API is called, should add loading symbol, etc
+    // Where the API is called
     React.useEffect(() => {
         if (search) {
 
@@ -105,7 +105,7 @@ export default function Search(props: {
     return ( 
         <div className='search'>
             <NavBar setFilterHidden={setFilterHidden} setAddress={setAddress}></NavBar>
-            <FilterPanel query={query} setQuery={setQuery} setSearch={setSearch} className={filterHidden ? 'filter-panel-hidden' : 'filter-panel-visible'} setFilterHidden={setFilterHidden}></FilterPanel>
+            <FilterPanel query={query} setQuery={setQuery} setSearch={setSearch} className={filterHidden ? 'filter-panel-hidden' : 'filter-panel-visible'} setFilterHidden={setFilterHidden} coordinates={props.coordinates} setLoading={props.setLoading} setPois={props.setPois}></FilterPanel>
         </div>
     );
 }

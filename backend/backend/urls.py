@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import find_poi, findCoordinates
+from .views import find_poi, findCoordinates, findFromPrompt
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('search-location/', find_poi, name='find_poi'),
-    path('find-coords/', findCoordinates, name='find-coords')
+    path('find-coords/', findCoordinates, name='find-coords'),
+    path('ai-search/', findFromPrompt, name="ai-search")
 ]
 

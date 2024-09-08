@@ -38,17 +38,14 @@
 
 .ai-search {
   box-sizing: border-box;
-  border-radius: 99px;
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 0;
-  width: 60%;
+  width: 90%;
   font-size: 2vmin;
   padding: 1vh;
-  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
   border: none;
+  background-color: transparent;
 }
 
-.searchInput:focus, .custom-radius > input:focus, .ai-search:focus {
+.searchInput:focus, .custom-radius > input:focus, .ai-search:focus, .form-select:focus {
   outline: none;
 }
 
@@ -362,11 +359,13 @@ h4 {
   overflow: hidden;
 }
 
-.ai-panel{
+.ai-form{
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 2% 0;
+  margin: 2% auto;
+  border-radius: 99px;
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  width: 40%;
 }
 
 .ai-button{
@@ -443,4 +442,16 @@ h4 {
   transform: translate(-50%, -50%);
   max-width: 10%;
   height: auto;
+}
+
+.form-select{
+  font-size: 1.25vmax;
+  background: #FFFFFF;
+  border: none;
+  padding: 1vh;
+  font-size: 2vmin;
+}
+
+.form-select:hover{
+  cursor: pointer;
 }

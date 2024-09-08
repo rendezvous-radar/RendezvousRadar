@@ -1,5 +1,6 @@
 import React, { ChangeEvent } from 'react';
-import { QueryType } from '../Interfaces';
+import { Coordinates, Pois, QueryType } from '../Interfaces';
+import axios from 'axios';
 
 /**
  * FilterPanel Component
@@ -10,6 +11,9 @@ import { QueryType } from '../Interfaces';
  * @param {string} props.className Toggles visibility of the component
  * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setQuery Sets the query of the api call
  * @param {React.Dispatch<React.SetStateAction<QueryType>>} props.setFilterHidden Sets the Filter panel to visible/invisible state
+ * @param {Coordinates} props.coordinates Coordinates of the query
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} props.setLoading Sets the loading state
+ * @param {React.Dispatch<React.SetStateAction<Array<Pois>>>} props.setPois Sets the list of pois
  * @returns {JSX.Element} A React JSX element representing the FilterPanel Component, the filter panel of the website
 */
 export default function FilterPanel(
@@ -18,7 +22,10 @@ export default function FilterPanel(
         setQuery: React.Dispatch<React.SetStateAction<QueryType>>, 
         className: string, 
         setSearch: React.Dispatch<React.SetStateAction<boolean>>,
-        setFilterHidden: React.Dispatch<React.SetStateAction<boolean>>
+        setFilterHidden: React.Dispatch<React.SetStateAction<boolean>>,
+        coordinates: Coordinates,
+        setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+        setPois: React.Dispatch<React.SetStateAction<Array<Pois>>>
     }) : JSX.Element {    
 
     // Custom Radius State
@@ -32,6 +39,9 @@ export default function FilterPanel(
 
     // AI Input
     const [aiInput, setAIInput] = React.useState<string>("");
+
+    // Ai Radius
+    const [aiRadius, setAiRadius] = React.useState<number>(1000);
 
     const handleRadiusClick = (radius: number) => {
         props.setQuery(prevQuery => ({
@@ -94,13 +104,30 @@ export default function FilterPanel(
 
     // Sets address to current input value
     const handleAiInput = (event: ChangeEvent<HTMLInputElement>) => {
-        setAIInput(event?.target.value);
+        if(event.target.className == "ai-search") {
+            setAIInput(event?.target.value);
+        }
+
+        else if (event.target.className == "ai-select") {
+            setAiRadius(Number(event?.target.value))
+        }
     }
 
-    //TODO: DO AI Query here!!
-    const handleAIQuery = () => {
-        // Call Backend and setQuery state
+    async function handleAIQuery() {
+        props.setLoading(true);
+        props.setFilterHidden(true);
+        try {
+            const res = await axios.get(
+                `${import.meta.env.VITE_BACKEND_LINK}/ai-search/?lat=${props.coordinates.lat}&lon=${props.coordinates.lon}&radius=${aiRadius}&prompt=${aiInput}`
+            )
 
+            props.setPois(res.data.elements);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            props.setLoading(false);
+
+        }
     }
 
     const activeStyle = {"borderBottom": "2px solid #368DFF", "color": "#368DFF"} // Sets the style of the active window
@@ -212,8 +239,16 @@ export default function FilterPanel(
             </div>
 
             <div className={`ai-panel ${searchType === "ai-powered" ? "visible-panel" : "invisible-panel"}`}>
-                <input className="ai-search" placeholder='Give me some romantic date spots...' onChange={handleAiInput}></input>
-                <button className="ai-button" onClick={handleAIQuery}><span className="material-icons searchIcon">search</span></button>
+                <div className='ai-form'>
+                    <input className="ai-search" placeholder='Give me some romantic date spots...' onChange={handleAiInput}></input>
+                    <select id="range" name="range" className="form-select" onChange={() => handleAiInput}>
+                        <option value="1000">1 km</option>
+                        <option value="5000">5 km</option>
+                        <option value="10000">10 km</option>
+                        <option value="20000">20 km</option>
+                    </select>
+                    <button className="ai-button" onClick={handleAIQuery}><span className="material-icons searchIcon">search</span></button>
+                </div>
             </div>
 
         </div> 
