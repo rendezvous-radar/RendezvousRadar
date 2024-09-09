@@ -55,7 +55,8 @@ ROOT_URLCONF = "backend.urls"
 
 # TODO: ADD PROD LINK
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://main.dud3dbh8mjohs.amplifyapp.com"
 ]
 
 TEMPLATES = [
