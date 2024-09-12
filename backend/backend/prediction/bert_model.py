@@ -2,8 +2,9 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import AdamW
 from torch.nn import BCEWithLogitsLoss, Module
-from transformers import BertTokenizer, BertModel
+from transformers import BertTokenizer, BertModel, get_linear_schedule_with_warmup
 import torch.nn.functional as F
+import os
 
 # Categories and their classes
 num_labels = {
@@ -181,130 +182,94 @@ def one_hot_encode(label, category):
 
     return vector
 
-encoded_data = {
-    'text': data['text'],
-    'experience': [one_hot_encode(label.lower(), 'experience') for label in data['experience']],
-    'activity': [one_hot_encode(label.lower(), 'activity') for label in data['activity']],
-    'audience': [one_hot_encode(label.lower(), 'audience') for label in data['audience']],
-    'season': [one_hot_encode(label.lower(), 'season') for label in data['season']],
-    'time': [one_hot_encode(label.lower(), 'time') for label in data['time']]
-}
+def train_model():
+    encoded_data = {
+        'text': data['text'],
+        'experience': [one_hot_encode(label.lower(), 'experience') for label in data['experience']],
+        'activity': [one_hot_encode(label.lower(), 'activity') for label in data['activity']],
+        'audience': [one_hot_encode(label.lower(), 'audience') for label in data['audience']],
+        'season': [one_hot_encode(label.lower(), 'season') for label in data['season']],
+        'time': [one_hot_encode(label.lower(), 'time') for label in data['time']]
+    }
 
-# Checking transformation
-for i in range(3):
-    print(f"Text: {encoded_data['text'][i]}")
-    print(f"Experience: {encoded_data['experience'][i]}")
-    print(f"Activity: {encoded_data['activity'][i]}")
-    print(f"Audience: {encoded_data['audience'][i]}")
-    print(f"Time: {encoded_data['time'][i]}")
-    print(f"Season: {encoded_data['season'][i]}")
-    print("-" * 50)
+    # Tokenize the text data
+    inputs = tokenizer(encoded_data['text'], padding=True, truncation=True, return_tensors="pt", max_length=128)
 
-# Tokenize the text data
-inputs = tokenizer(encoded_data['text'], padding=True, truncation=True, return_tensors="pt", max_length=128, clean_up_tokenization_spaces=True)
+    # Convert labels to tensors
+    labels_experience = torch.tensor(encoded_data['experience'], dtype=torch.float32)
+    labels_activity = torch.tensor(encoded_data['activity'], dtype=torch.float32)
+    labels_audience = torch.tensor(encoded_data['audience'], dtype=torch.float32)
+    labels_time = torch.tensor(encoded_data['time'], dtype=torch.float32)
+    labels_season = torch.tensor(encoded_data['season'], dtype=torch.float32)
 
-# Convert labels to tensors
-labels_experience = torch.tensor(encoded_data['experience'], dtype=torch.float32)
-labels_activity = torch.tensor(encoded_data['activity'], dtype=torch.float32)
-labels_audience = torch.tensor(encoded_data['audience'], dtype=torch.float32)
-labels_time = torch.tensor(encoded_data['time'], dtype=torch.float32)
-labels_season = torch.tensor(encoded_data['season'], dtype=torch.float32)
+    # Create a DataLoader
+    dataset = TensorDataset(
+        inputs['input_ids'],
+        inputs['attention_mask'],
+        labels_experience,
+        labels_activity,
+        labels_audience,
+        labels_time,
+        labels_season
+    )
+    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
 
-# Create a DataLoader
-dataset = TensorDataset(
-    inputs['input_ids'],
-    inputs['attention_mask'],
-    labels_experience,
-    labels_activity,
-    labels_audience,
-    labels_time,
-    labels_season
-)
-dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+    # Hyperparameters
+    learning_rate = 5e-5
+    num_epochs = 4
+    warmup_steps = 0
+    weight_decay = 0.1
+    max_grad_norm = 1.0
 
-from transformers import get_linear_schedule_with_warmup
+    # Initialize model
+    model = MultiLabelBERTClassifier(num_labels)
+    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
-# Hyperparameters
-learning_rate = 5e-5
-batch_size = 8
-num_epochs = 4
-warmup_steps = 0
-weight_decay = 0.1
-max_grad_norm = 1.0
+    # Create a learning rate scheduler
+    total_steps = len(dataloader) * num_epochs
+    scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=total_steps)
 
-# Initialize model
-model = MultiLabelBERTClassifier(num_labels)
-optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    model.train()
 
-# Create a learning rate scheduler
-total_steps = len(dataloader) * num_epochs
-scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=total_steps)
+    loss_fn = BCEWithLogitsLoss()
 
-model.train()
+    # Training loop
+    for epoch in range(num_epochs):
+        epoch_loss = 0
+        for batch in dataloader:
+            input_ids, attention_mask, labels_experience, labels_activity, labels_audience, labels_time, labels_season = batch
 
-loss_fn = BCEWithLogitsLoss()
+            optimizer.zero_grad()
 
-# Training loop
-for epoch in range(num_epochs):
-    epoch_loss = 0
-    for batch in dataloader:
-        input_ids, attention_mask, labels_experience, labels_activity, labels_audience, labels_time, labels_season = batch
+            # Forward Pass
+            logits_experience, logits_activity, logits_audience, logits_time, logits_season = model(input_ids, attention_mask)
 
-        optimizer.zero_grad()
+            # Calculate Loss
+            loss_experience = loss_fn(logits_experience, labels_experience)
+            loss_activity = loss_fn(logits_activity, labels_activity)
+            loss_audience = loss_fn(logits_audience, labels_audience)
+            loss_time = loss_fn(logits_time, labels_time)
+            loss_season = loss_fn(logits_season, labels_season)
 
-        # Forward Pass
-        logits_experience, logits_activity, logits_audience, logits_time, logits_season = model(input_ids, attention_mask)
+            # Total Loss
+            loss = loss_experience + loss_activity + loss_audience + loss_time + loss_season
+            loss.backward()
 
-        # Calculate Loss
-        loss_experience = loss_fn(logits_experience, labels_experience)
-        loss_activity = loss_fn(logits_activity, labels_activity)
-        loss_audience = loss_fn(logits_audience, labels_audience)
-        loss_time = loss_fn(logits_time, labels_time)
-        loss_season = loss_fn(logits_season, labels_season)
+            # Gradient clipping
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
 
-        # Total Loss
-        loss = loss_experience + loss_activity + loss_audience + loss_time + loss_season
-        loss.backward()
+            optimizer.step()
+            scheduler.step()
 
-        # Gradient clipping
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+            epoch_loss += loss.item()
 
-        optimizer.step()
-        scheduler.step()
+        avg_epoch_loss = epoch_loss / len(dataloader)
+        print(f'Epoch {epoch + 1}, Average Loss: {avg_epoch_loss:.4f}')
 
-        epoch_loss += loss.item()
+    # Evaluation
+    model.eval()
 
-    avg_epoch_loss = epoch_loss / len(dataloader)
-    print(f'Epoch {epoch + 1}, Average Loss: {avg_epoch_loss:.4f}')
-
-# Evaluation
-model.eval()
-
-with torch.no_grad():
-    for batch in dataloader:
-        input_ids, attention_mask, labels_experience, labels_activity, labels_audience, labels_time, labels_season = batch
-
-        # Forward Pass
-        logits_experience, logits_activity, logits_audience, logits_time, logits_season = model(input_ids, attention_mask)
-
-        # Probabilities
-        probs_experience = torch.sigmoid(logits_experience)
-        probs_activity = torch.sigmoid(logits_activity)
-        probs_audience = torch.sigmoid(logits_audience)
-        probs_time = torch.sigmoid(logits_time)
-        probs_season = torch.sigmoid(logits_season)
-
-        # Probabilities -> Binary Predictions with 0.5 threshold
-        preds_experience = (probs_experience > 0.5).int()
-        preds_activity = (probs_activity > 0.5).int()
-        preds_audience = (probs_audience > 0.5).int()
-        preds_time = (probs_time > 0.5).int()
-        preds_season = (probs_season > 0.5).int()
-
-        print(f'Experience Predictions: {preds_experience}, True Labels: {labels_experience}')
-        print(f'Activity Type Predictions: {preds_activity}, True Labels: {labels_activity}')
-        print(f'Target Audience Predictions: {preds_audience}, True Labels: {labels_audience}')
-        print(f'Time of Day Predictions: {preds_time}, True Labels: {labels_time}')
-        print(f'Season Predictions: {preds_season}, True Labels: {labels_season}')
-
-torch.save(model.state_dict(), "model.pth")
+    # Saving the model
+    save_dir = 'backend/prediction/' 
+    save_path = os.path.join(save_dir, 'model.pth')
+    torch.save(model.state_dict(), save_path)

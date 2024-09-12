@@ -1,6 +1,7 @@
 import torch
 from transformers import BertTokenizer, BertModel
 from torch.nn import Module
+from .bert_model import train_model
 
 
 class MultiLabelBERTClassifier(Module):
@@ -40,10 +41,25 @@ num_labels = {
 }
 
 def load_model():
-    model = MultiLabelBERTClassifier(num_labels)
-    model.load_state_dict(torch.load('backend/prediction/model.pth', map_location=torch.device('cpu')))
-    model.eval()
-    return model
+    try: 
+        model = MultiLabelBERTClassifier(num_labels)
+        model.load_state_dict(torch.load('backend/prediction/model.pth', map_location=torch.device('cpu')))
+        model.eval()
+        return model
+    
+    except Exception as e:
+        train_model()
+
+        # Retry loading model after training
+        try: 
+            model = MultiLabelBERTClassifier(num_labels)
+            model.load_state_dict(torch.load('backend/prediction/model.pth', map_location=torch.device('cpu')))
+            model.eval()
+            return model
+    
+        except Exception as e:
+            print(f"Failed to load the model again: {e}")
+            return None
 
 def predict(text):
     model = load_model()
