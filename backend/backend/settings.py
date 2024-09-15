@@ -56,7 +56,8 @@ ROOT_URLCONF = "backend.urls"
 # TODO: ADD PROD LINK
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://main.dud3dbh8mjohs.amplifyapp.com"
+    "https://main.dud3dbh8mjohs.amplifyapp.com",
+    "https://secret-tor-01473-a5ce0a928056.herokuapp.com/"
 ]
 
 TEMPLATES = [
