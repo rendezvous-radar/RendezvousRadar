@@ -36,7 +36,8 @@ def geocodeapi(lat, lon):
 
     headers = {
         'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder", # TODO: Change this
-        "User-Agent": "Rendezvous-Radar" 
+        "User-Agent": "Rendezvous-Radar",
+        'Origin': "https://main.dud3dbh8mjohs.amplifyapp.com"
     }
 
     # Make the API call
@@ -124,7 +125,9 @@ def pairs_to_pois(query_dict, radius, lat, lon):
 
         headers = {
             'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder",  # TODO: Change this
-            "User-Agent": "Rendezvous-Radar"
+            "User-Agent": "Rendezvous-Radar",
+            'Origin': "https://main.dud3dbh8mjohs.amplifyapp.com"
+
         }
 
         try:
@@ -227,7 +230,8 @@ def findCoordinates(request):
     url = f"https://nominatim.openstreetmap.org/search?q={address}&format=json"
     headers = {
         'referer': "https://jinhakimgh.github.io/Basketball-Court-Finder", # TODO: Change this
-        "User-Agent": "Rendezvous-Radar" 
+        "User-Agent": "Rendezvous-Radar",
+        'Origin': "https://main.dud3dbh8mjohs.amplifyapp.com"
     }
 
     # Make the API call
