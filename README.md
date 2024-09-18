@@ -6,7 +6,7 @@ This app gets POIs, its data, and creates the map using the OpenStreetMap (OSM) 
 
 ## 🔗 Website Link
 
-You can access this app [here]()!
+You can access this app [here](https://main.dud3dbh8mjohs.amplifyapp.com/)!
 
 ## 🪄 Features
 
