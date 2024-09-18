@@ -57,8 +57,6 @@ ROOT_URLCONF = "backend.urls"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://main.dud3dbh8mjohs.amplifyapp.com",
-    "https://secret-tor-01473-a5ce0a928056.herokuapp.com/",
-    "https://corsanywhere.herokuapp.com/"
 ]
 
 TEMPLATES = [
