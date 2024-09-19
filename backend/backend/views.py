@@ -146,7 +146,6 @@ def pairs_to_pois(query_dict, radius, lat, lon):
 
     # Limits number of returned POIs
     data["elements"] = data["elements"][0:(int(radius) // 20) - 1] 
-
     
     for poi in data["elements"]:
         # Add address to each POI and add overall category for markers (food, nature, shopping, sports, uncategorized_poi)

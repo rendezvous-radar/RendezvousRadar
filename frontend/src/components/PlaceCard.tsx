@@ -53,7 +53,13 @@ export default function PlaceCard(props: {
     };
 
     const capitalize = (word : string) : string => {
-        return word.charAt(0).toUpperCase() + word.slice(1);
+        if (word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+
+        else {
+            return "";
+        }
     }
 
     React.useEffect(() => {
@@ -80,12 +86,12 @@ export default function PlaceCard(props: {
             // If POI is amenity/restaurant
             if (validTag == "amenity") {
                 setDesc((props.poi.tags.cuisine 
-                    ? capitalize(props.poi.tags.cuisine.replace(/_/g, ' ')) + " " 
+                    ? capitalize(props.poi.tags.cuisine?.replace(/_/g, ' ')) + " " 
                     : ""
-                ) + capitalize(props.poi.tags.amenity.replace(/_/g, ' ')));
+                ) + capitalize(props.poi.tags.amenity?.replace(/_/g, ' ')));
             } else if (validTag == "shop") {
                 // Amenity is a shop
-                setDesc(capitalize(props.poi.tags.shop.replace(/_/g, ' ') + " shop"));
+                setDesc(capitalize(props.poi.tags.shop?.replace(/_/g, ' ') + " shop"));
             } else {
                 setDesc(capitalize(props.poi.tags.validTag?.replace(/_/g, ' ').toLocaleUpperCase()));
             }
@@ -118,7 +124,7 @@ export default function PlaceCard(props: {
             const [days, time] = range.trim().split(' ');
     
             // Add spaces around the dash in the time range
-            const formattedTime = time.replace('-', ' - ');
+            const formattedTime = time?.replace('-', ' - ');
     
             // Expand day ranges like Mo-We to Mo, Tu, We
             const expandedDays = days.split('-').map(day => daysMap[day.trim()]);
@@ -184,14 +190,14 @@ export default function PlaceCard(props: {
                     <p className="distance"><span className="material-icons">straighten</span>{`${Math.round(props.distance * 100) / 100}km away`}</p>
                     <p className="address"><span className="material-icons">place</span>{props.poi.tags.address}</p>
                     {props.poi.tags.opening_hours && 
-                        <p className="address">
+                        <div className="address">
                             <span className="material-icons">schedule</span>
                             <ul className="opening-hours-list">
                                 {transformHours(props.poi.tags.opening_hours).map((hour, index) => (
                                     <li key={index} className="opening-hours">{hour}</li>
                                 ))}
                             </ul>
-                        </p>
+                        </div>
                     }
 
                     {props.poi.tags.phone && 

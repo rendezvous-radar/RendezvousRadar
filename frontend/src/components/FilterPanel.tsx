@@ -97,7 +97,6 @@ export default function FilterPanel(
 
         else{
             setIsWrong(true);
-            console.log("Something's wrong")
         }
 
     }
