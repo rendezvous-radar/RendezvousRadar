@@ -4,10 +4,6 @@ This app allows users to search for activities. Users can manually select activi
 
 This app gets POIs, its data, and creates the map using the OpenStreetMap (OSM) API, geocodes and reverse geocodes using the Nominatim API, and a trained multi-label BERT classification model to predict activity categories based on user input.
 
-## 🔗 Website Link
-
-You can access this app [here](https://main.dud3dbh8mjohs.amplifyapp.com/)!
-
 ## 🪄 Features
 
 Users can:
