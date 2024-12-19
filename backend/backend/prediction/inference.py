@@ -59,7 +59,7 @@ class ConstrainLogitsProcessor(LogitsProcessor):
             if prefix[:len(current_seq)] == current_seq:
                 valid_next_tokens.add(prefix[len(current_seq)])
         
-        # Mask invalid tokens by setting their scores to a very large negative value
+        # Mask invalid tokens
         mask = torch.ones_like(scores, dtype=torch.bool)
         for token_id in valid_next_tokens:
             mask[0, token_id] = False
