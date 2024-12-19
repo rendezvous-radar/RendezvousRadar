@@ -3,7 +3,6 @@ import requests
 import pandas as pd
 from io import StringIO
 import os
-from .prediction.model import predict
 
 # Object of inputted classifications
 def class_to_activity(classifications):
@@ -270,6 +269,7 @@ def findFromPrompt(request):
         return JsonResponse({'error': 'Parameter(s) are missing'}, status=400)
     
     # Returns prediction categorization from model
-    preds = predict(prompt)
+    preds = 0
+    print(preds)
 
     return pairs_to_pois(preds, radius, lat, lon)

@@ -1,0 +1,166 @@
+Prompt,Completion
+I'm looking for an adventure activity.,"zipline, bicycle_rental, rock_climbing, trail"
+I am looking for some romantic date spots.,"beach, spa, vineyard, cafe, restaurant"
+I am looking for some fun date activities.,"beach, zipline, bicycle_rental, rock_climbing, trail, karaoke, theatre, theme_park, zoo, aquarium, theme_park, museum, miniature_golf"
+Where can I find outdoor relaxation spots?,"beach, park, garden, nature_reserve, vineyard"
+What are some good places to explore nature?,"national_park, nature_reserve, valley, volcano"
+I want to visit some historical landmarks.,"castle, archaeological_site, memorial, monument"
+What are some fun indoor entertainment spots?,"casino, cinema, karaoke, theatre, planetarium"
+Show me some family-friendly places to visit.,"zoo, aquarium, theme_park, playground, museum"
+Where can I go for a relaxing day out?,"beach, spa, garden, vineyard, library"
+What are some unique attractions to see?,"lighthouse, sculpture, statue, mural, aquarium"
+I want a place for outdoor sports.,"stadium, golf_course, running_track, swimming_pool"
+Show me scenic places with good views.,"viewpoint, cliff, bay, cape, valley"
+What are some outdoor activities I can try?,"hiking_trail, bicycle_rental, beach, park, valley, nature_reserve"
+I'd like to see some historical places.,"castle, battlefield, historic_building, manor, ruin, monument"
+Are there any family-friendly attractions around?,"aquarium, zoo, camp_site, theme_park, playground"
+Where can I go to unwind and relax?,"garden, sauna, park, vineyard, beach_resort"
+I want to find some places to shop.,"mall, shopping_centre, art_shop, toy_shop, sports_shop"
+I’m in the mood for adventure activities.,"zipline, bicycle_rental, trail, water_park, kayaking"
+What are some nearby places of worship?,"church, mosque, synagogue, chapel, cathedral"
+Where can I get an adrenaline rush soaring over treetops?,zipline
+I'm looking for a scenic place for a long hike; any local recommendations?,trail
+What are some peaceful spots to experience local wildlife?,nature_reserve
+What's a great place to spend a day diving into local history?,museum
+Are there any eye-catching murals to photograph around here?,mural
+Where can I catch a live show tonight?,theatre
+I'm craving a cozy cafe with unique flavors—any suggestions?,cafe
+Any good spots around here for a laid-back BBQ with friends?,barbecue
+Where can I do a tasting of local wines?,winery
+What’s a great spot for families to learn about marine life?,aquarium
+Where can I see exotic animals nearby?,zoo
+Any fun water parks for a day of adventure with the kids?,water_park
+Looking to explore an old castle—any recommendations?,castle
+Are there any archaeological sites that showcase ancient civilizations?,archaeological_site
+Where can I go to learn more about historical architecture?,historic_building
+I need a relaxing sauna experience; any local gems?,sauna
+Where’s a good place for a serious workout around here?,fitness_centre
+Any recommendations for a massage shop to unwind?,massage_shop
+What’s a good spot for a night of casino games and entertainment?,casino
+Any karaoke bars around where I can sing my heart out?,karaoke
+Where’s a fun pub with a great atmosphere?,pub
+Any breathtaking waterfalls worth visiting?,waterfall
+Where can I find the best panoramic views of the area?,viewpoint
+Are there any volcanic sites to explore nearby?,volcano
+Looking for a unique art shop with local crafts—any suggestions?,art_shop
+Where’s the best place for a day of shopping?,mall
+Any interesting toy stores for some unique finds?,toy_shop
+I'm curious about local art centers—any suggestions for a creative day out?,arts_centre
+Where can I enjoy a lively atmosphere and a good drink?,bar
+Are there any places around for a traditional beer garden experience?,beer_garden
+Where’s the nearest place to pick up a bicycle rental?,bicycle_rental
+What’s a unique spot to experience vibrant nightlife?,brothel
+Looking for a casino to test my luck; any recommendations?,casino
+Where can I catch the latest blockbuster movie?,cinema
+Any fun community centers with classes or events?,community_centre
+Where can I learn martial arts nearby?,martial_arts
+I'm in the mood for some tasty street food—where should I go?,food
+Where can I grab some delicious ice cream?,ice_cream
+Are there any good karaoke bars for a fun night out?,karaoke
+Looking for a quiet library to do some reading; any suggestions?,library
+Where’s a vibrant marketplace to explore?,marketplace
+Where can I visit a historic mosque in the area?,mosque
+Are there any grand cathedrals I could tour?,cathedral
+Looking for a church to attend nearby services?,church
+Where can I find an impressive planetarium?,planetarium
+What's a nice pub with a friendly atmosphere?,pub
+Any sauna spots around here to unwind?,sauna
+Any suggestions for a live theatre experience?,theatre
+Where can I find a cool mural to check out?,mural
+Any famous sculptures I should see?,sculpture
+Is there a memorial or statue to honor a historic event?,war_memorial
+Looking for a tranquil meadow for a picnic or nature walk.,meadow
+Are there any recreational grounds for outdoor sports?,recreation_ground
+Is there a beautiful reservoir where I can relax?,reservoir
+Where can I taste local wines in a vineyard?,vineyard
+Looking for a beach resort to relax by the sea.,beach_resort
+Where’s a great spot for fishing enthusiasts?,fishing_area
+Any famous gardens to explore nearby?,garden
+Any local parks with a scenic view?,park
+Are there equestrian centers with riding lessons?,equestrian_center
+Any public ice rinks for skating?,ice_rink
+Where’s a good marina for boating or sightseeing?,marina
+Looking for a miniature golf course—any recommendations?,miniature_golf
+Is there a nature reserve with diverse wildlife?,nature_reserve
+Any popular sports pitches for a game?,sports_pitch
+Where’s a good playground for kids?,playground
+Looking for a fun place with swimming pools?,swimming_pool
+Are there any scenic running tracks in the area?,running_track
+Looking for an exciting theme park.,theme_park
+Any viewpoints for stunning landscapes?,viewpoint
+Are there any historic castles to explore nearby?,castle
+Where can I find remnants of an old ruin?,ruin
+Where can I see a sunken wreck site?,wreck
+Any picturesque bays to visit?,bay
+Where can I find coastal cliffs?,cliff
+Looking for a scenic coastline?,coastline
+Where’s a vibrant shopping centre?,shopping_centre
+Where can I find a shop with a unique tattoo artist?,tattoo_studio
+Looking for a cool toy shop with unique items.,toy_shop
+Where’s a popular waterfall?,waterfall
+Any interesting lighthouses nearby?,lighthouse
+Where can I experience thrilling zipline rides?,zipline
+What are some outdoor spots to go cycling?,"bicycle_rental, trail, park"
+I’m in the mood for some outdoor adventures—any suggestions?,"rock_climbing, hiking_trail, zipline, water_park"
+Where can I find scenic hiking trails?,"trail, nature_reserve, valley"
+Are there any running tracks or paths for joggers nearby?,"running_track, path, trail"
+I’d like to go horse riding; any local recommendations?,"equestrian_center, meadow, recreation_ground"
+Where can I try kayaking or fishing for a fun day outdoors?,"fishing_area, beach, reservoir"
+Are there any sports grounds for outdoor activities?,"sports_pitch, recreation_ground, golf_course"
+I want a calm place to relax outdoors.,"park, garden, beach_resort, vineyard"
+Where can I enjoy a picnic surrounded by nature?,"picnic_site, meadow, park"
+Are there scenic cliffs or coastal views nearby?,"cliff, coastline, bay"
+Where can I unwind and enjoy natural hot springs?,"spring, sauna, beach_resort"
+I’m looking for a vineyard where I can taste local wines.,"vineyard, winery"
+Are there any beaches with good views for relaxation?,"beach, bay, viewpoint"
+Where can I find scenic viewpoints to enjoy the sunset?,"viewpoint, cape, cliff"
+What are some family-friendly attractions to visit?,"zoo, aquarium, theme_park, playground"
+Where can I take my kids for a fun day?,"water_park, playground, miniature_golf"
+Are there any theme parks or water parks nearby?,"theme_park, water_park"
+Where can we spend a day exploring marine life?,aquarium
+I need recommendations for a place to play mini-golf.,"miniature_golf, sports_centre"
+Where can I explore ancient ruins or archaeological sites?,"ruins, archaeological_site, castle"
+Are there any landmarks showcasing historical architecture?,"castle, manor, historic_building"
+I’d like to visit a historic battlefield—any suggestions?,"battlefield, war_memorial"
+Where can I see remnants of an old sunken shipwreck?,wreck
+Are there any castles or manors nearby to explore?,"castle, manor"
+Where can I visit a memorial honoring significant events?,"memorial, monument, war_memorial"
+Where can I watch the latest movies?,cinema
+Are there karaoke spots for a fun night out?,"karaoke, karaoke_box"
+I’m looking for a lively bar or pub with a great atmosphere.,"pub, bar, biergarten"
+Where can I test my luck at casino games?,casino
+Are there any theatres for a live performance?,theatre
+Where can I find a cozy cafe to relax?,cafe
+I need a quiet library for some reading or study.,library
+Where’s the best place for shopping and local finds?,"mall, shopping_centre, marketplace"
+I’m looking for unique art shops or handmade crafts.,"art_shop, arts_centre"
+Are there any vibrant marketplaces to explore?,marketplace
+Where can I get a unique tattoo design?,tattoo_studio
+Any good toy stores for fun or unique gifts?,toy_shop
+Where can I enjoy a classic beer garden experience?,biergarten
+Any good bakeries with fresh local treats?,bakery
+Where can I find some delicious street food?,"food, marketplace"
+I’m craving some ice cream—any suggestions?,ice_cream
+Are there local breweries or distilleries offering tastings?,"brewery, distillery"
+I need a relaxing spa or sauna experience—any recommendations?,"sauna, spa, massage_shop"
+Where can I find a good fitness centre or gym?,"fitness_centre, gym"
+Are there any martial arts studios nearby?,"dojo, martial_arts"
+Where can I get a massage to unwind?,massage_shop
+Where can I explore wildlife in a protected area?,"nature_reserve, national_park"
+Are there any beautiful waterfalls around?,waterfall
+I’m looking for volcanic sites to visit.,volcano
+Where can I visit a scenic valley or meadows?,"valley, meadow"
+Are there reservoirs or natural springs nearby?,"reservoir, spring"
+Where can I visit a historic church or chapel?,"church, chapel"
+Are there any mosques or cathedrals for sightseeing?,"mosque, cathedral"
+Where can I find a synagogue or similar places of worship?,synagogue
+Where can I see interesting murals or street art?,mural
+Are there any statues or sculptures worth visiting?,"statue, sculpture"
+I’d like to visit a famous lighthouse for photography.,lighthouse
+Where can I see unique landmarks or monuments?,"monument, memorial"
+Are there any unique caves to explore nearby?,cave_entrance
+I want a relaxing day with wine tastings and scenic views.,"vineyard, winery, viewpoint"
+Where can I enjoy a combination of beach cliffs and water views?,"beach, cliff, coastline"
+Looking for a mix of history and nature—any recommendations?,"castle, national_park, ruins"
+Are there any sports centres with gyms and swimming pools?,"sports_centre, gym, swimming_pool"
+Where can I spend a day at a lively marketplace and local food spots?,"marketplace, food"
