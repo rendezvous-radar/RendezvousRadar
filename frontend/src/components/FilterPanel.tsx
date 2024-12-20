@@ -106,11 +106,13 @@ export default function FilterPanel(
         if(event.target.className == "ai-search") {
             setAIInput(event?.target.value);
         }
+    }
 
-        else if (event.target.className == "ai-select") {
+    const handleAiRadius = (event: ChangeEvent<HTMLSelectElement>) => {
+        if (event.target.className == "ai-select") {
             setAiRadius(Number(event?.target.value))
         }
-    }
+    } 
 
     async function handleAIQuery() {
         props.setLoading(true);
@@ -119,7 +121,7 @@ export default function FilterPanel(
             const res = await axios.get(
                 `${import.meta.env.VITE_BACKEND_LINK}/ai-search/?lat=${props.coordinates.lat}&lon=${props.coordinates.lon}&radius=${aiRadius}&prompt=${aiInput}`
             )
-
+            // TODO: ADD A NOT FOUND
             props.setPois(res.data.elements);
         } catch (err) {
             console.log(err);
@@ -240,7 +242,7 @@ export default function FilterPanel(
             <div className={`ai-panel ${searchType === "ai-powered" ? "visible-panel" : "invisible-panel"}`}>
                 <div className='ai-form'>
                     <input className="ai-search" placeholder='Give me some romantic date spots...' onChange={handleAiInput}></input>
-                    <select id="range" name="range" className="form-select" onChange={() => handleAiInput}>
+                    <select id="range" name="range" className="ai-select" onChange={handleAiRadius}>
                         <option value="1000">1 km</option>
                         <option value="5000">5 km</option>
                         <option value="10000">10 km</option>

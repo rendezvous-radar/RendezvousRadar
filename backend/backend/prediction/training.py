@@ -4,7 +4,8 @@ from datasets import Dataset
 import pandas as pd
 import os
 import re
-from transformers.generation.logits_process import LogitsProcessor
+from CustomLogitsProcessor import ConstrainLogitsProcessor
+
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -36,43 +37,6 @@ valid_activity_sequences = [
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = AutoModelForCausalLM.from_pretrained(model_name)
 model.to(device)
-
-class ConstrainLogitsProcessor(LogitsProcessor):
-    def __init__(self, valid_sequences):
-        self.valid_prefixes = self._generate_prefixes(valid_sequences)
-
-    def _generate_prefixes(self, sequences):
-        """Generate all valid prefixes from tokenized sequences."""
-        prefixes = set()
-        for seq in sequences:
-            for i in range(1, len(seq) + 1):
-                prefixes.add(tuple(seq[:i]))
-        return prefixes
-    
-    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
-        """Mask logits that don't match valid prefixes."""
-        current_seq = tuple(input_ids[0].tolist())  # Current sequence
-        
-        # Find valid next token IDs based on prefixes
-        valid_next_tokens = set()
-        for prefix in self.valid_prefixes:
-            if prefix[:len(current_seq)] == current_seq:
-                valid_next_tokens.add(prefix[len(current_seq)])
-        
-        # Mask invalid tokens
-        mask = torch.ones_like(scores, dtype=torch.bool)
-        for token_id in valid_next_tokens:
-            mask[0, token_id] = False
-        
-        # Ensure we don't mask all tokens; otherwise, the generation will fail
-        if mask.all():
-            # In case all tokens are masked, allow the top-k logits for the next token
-            mask[0, torch.topk(scores[0], 5).indices] = False
-        
-        # Apply the mask, setting invalid logits to a very large negative value
-        scores[mask] = -float("inf")
-        
-        return scores
 
 # Preprocesses the data and returns labels
 def preprocess(examples):
@@ -200,4 +164,11 @@ prompt = "Suggest a list of activities for a romantic date."
 output = set(generate_filtered_output(prompt, num_beams=5, max_length=500))
 print("Generated Output:", output)
 
+prompt = "Suggest fun activities for the day."
+output = set(generate_filtered_output(prompt, num_beams=5, max_length=500))
+print("Generated Output:", output)
+
 # Push model and tokenizer to Hugging Face Hub
+trainer.save_model("./updated_model")
+model.push_to_hub("jkim03/rendezvous-radar-model", force=True)
+tokenizer.push_to_hub("jkim03/rendezvous-radar-model", force=True)

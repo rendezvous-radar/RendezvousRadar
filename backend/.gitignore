@@ -13,3 +13,7 @@ media/
 
 # Virtualenv
 venv/
+
+# Results of model training
+results/
+updated_model/

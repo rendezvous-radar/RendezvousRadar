@@ -122,26 +122,29 @@ export default function PlaceCard(props: {
         ranges.forEach(range => {
             // Extract the days and time range
             const [days, time] = range.trim().split(' ');
-    
-            // Add spaces around the dash in the time range
-            const formattedTime = time?.replace('-', ' - ');
-    
-            // Expand day ranges like Mo-We to Mo, Tu, We
-            const expandedDays = days.split('-').map(day => daysMap[day.trim()]);
-    
-            if (expandedDays.length > 1) {
-                const startDay = Object.keys(daysMap).indexOf(days.split('-')[0].trim());
-                const endDay = Object.keys(daysMap).indexOf(days.split('-')[1].trim());
-    
-                for (let i = startDay; i <= endDay; i++) {
-                    result.push(`${Object.values(daysMap)[i]}: ${formattedTime}`);
+
+            if (time) {
+                // Add spaces around the dash in the time range
+                const formattedTime = time?.replace('-', ' - ');
+        
+                // Expand day ranges like Mo-We to Mo, Tu, We
+                const expandedDays = days.split('-').map(day => daysMap[day.trim()]);
+        
+                if (expandedDays.length > 1) {
+                    const startDay = Object.keys(daysMap).indexOf(days.split('-')[0].trim());
+                    const endDay = Object.keys(daysMap).indexOf(days.split('-')[1].trim());
+        
+                    for (let i = startDay; i <= endDay; i++) {
+                        result.push(`${Object.values(daysMap)[i]}: ${formattedTime}`);
+                    }
+                } else {
+                    const singleDays = days.split(',').map(day => daysMap[day.trim()]);
+                    singleDays.forEach(day => {
+                        result.push(`${day}: ${formattedTime}`);
+                    });
                 }
-            } else {
-                const singleDays = days.split(',').map(day => daysMap[day.trim()]);
-                singleDays.forEach(day => {
-                    result.push(`${day}: ${formattedTime}`);
-                });
             }
+    
         });
     
         return result;
