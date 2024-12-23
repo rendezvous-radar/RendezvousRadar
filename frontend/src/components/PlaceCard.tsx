@@ -24,32 +24,10 @@ export default function PlaceCard(props: {
     // Placecard information
     const [isOverview, setIsOverview] = React.useState<boolean>(true);
 
-    // TODO: Find better way to do this
+    // Returns the first valid tag
     const getFirstValidTag = (tags : PoiTags) : string | undefined => {
-        if (tags.amenity) {
-            return 'amenity';
-        }
-
-        if (tags.shop) {
-            return 'shop'
-        }
-        
-        if (tags.tourism) {
-            return 'tourism'
-        }
-
-        if (tags.leisure) {
-            return 'leisure'
-        }
-
-        if (tags.craft) {
-            return 'craft'
-        }
-
-        if (tags.historic) {
-            return 'historic'
-        }
-        return;
+        const keysToCheck = ['amenity', 'shop', 'tourism', 'leisure', 'craft', 'historic'];
+        return keysToCheck.find(key => tags[key as keyof PoiTags]);
     };
 
     const capitalize = (word : string) : string => {
@@ -93,7 +71,7 @@ export default function PlaceCard(props: {
                 // Amenity is a shop
                 setDesc(capitalize(props.poi.tags.shop?.replace(/_/g, ' ') + " shop"));
             } else {
-                setDesc(capitalize(props.poi.tags.validTag?.replace(/_/g, ' ').toLocaleUpperCase()));
+                setDesc(props.poi.tags[validTag].replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase()));
             }
         } else {
             setDesc("");

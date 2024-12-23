@@ -219,6 +219,18 @@ h4 {
   color: rgb(255, 255, 255);
 }
 
+.close-not-found {
+  background-color: transparent;
+  border: none;
+  font-size: 2.5vmin;
+  color: black;
+  padding: 1vw;
+}
+
+.close-not-found:hover {
+  cursor: pointer;
+  color: rgb(78, 76, 76);
+}
 
 .error-msg > .close-err:hover{
   cursor: pointer;
@@ -435,13 +447,29 @@ h4 {
 }
 
 .loading {
+  max-width: 10%;
+}
+
+.loading, .not-found {
   position: absolute;
   top: 50%;
   left: 50%;
   z-index: 10000000;
   transform: translate(-50%, -50%);
-  max-width: 10%;
   height: auto;
+}
+
+.not-found {
+  background: #FFFFFF;
+  border-radius: 10px;
+}
+
+.not-found-top {
+  display: flex;
+}
+
+.not-found-body {
+  padding: 1vw 2vw 1vw 2vw;
 }
 
 .form-select, .ai-select{
@@ -454,4 +482,12 @@ h4 {
 
 .form-select:hover, .ai-select:hover{
   cursor: pointer;
+}
+
+.marker-icon{
+  transition: filter 0.3s;
+}
+
+.marker-icon:hover {
+  filter: brightness(80%);
 }

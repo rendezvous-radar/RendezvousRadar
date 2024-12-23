@@ -37,7 +37,7 @@ export default function Search(props: {
     const [search, setSearch] = React.useState<boolean>(false);
 
     // State for address string
-    const [address, setAddress] = React.useState<string>("Vaughan, Ontario, Canada");
+    const [address, setAddress] = React.useState<string>("Toronto, Ontario, Canada");
 
     async function getPois() {
         props.setLoading(true);
@@ -46,7 +46,7 @@ export default function Search(props: {
                 `${import.meta.env.VITE_BACKEND_LINK}/search-location/?lat=${props.coordinates.lat}&lon=${props.coordinates.lon}&radius=${query.radius * 1000}&experiences=${query.experience.join(',')}&activity=${query.activity.join(',')}&audience=${query.audience.join(',')}&seasons=${query.season.join(',')}&times=${query.time.join(',')}`
             );
 
-            props.setPois(res.data.elements)
+            props.setPois(res.data.elements);
 
         } catch (err) {
             // TODO: What to do with API call error
@@ -100,7 +100,7 @@ export default function Search(props: {
 
     React.useEffect(() => {
         findCoordinates();
-    }, [address])
+    }, [address]);
 
     return ( 
         <div className='search'>

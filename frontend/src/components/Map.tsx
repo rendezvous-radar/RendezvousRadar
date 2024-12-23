@@ -61,13 +61,15 @@ export default function Map(props: {
           {props.pois.map((pin, index) => (
             <Marker key={pin.id} position={[pin.lat, pin.lon]} icon={
                 L.icon({
+                    className: "marker-icon",
                     iconUrl: `./assets/${props.poiIndex == index ? "selected" : pin.tags.category}.png`,
                     iconSize: [50, 50],
                     iconAnchor: [25, 50],
-                })} eventHandlers={{click: () => {
+                })} eventHandlers={{
+                      click: () => {
                         changeIndex(pin.id);
                         props.setHidePlacecard(false);
-                    }}}>
+                      }}}>
                     <Tooltip>
                         <span>{pin.tags.name}</span>
                     </Tooltip>

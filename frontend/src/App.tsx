@@ -16,13 +16,36 @@ function App() {
   const [hidePlacecard, setHidePlacecard] = React.useState<boolean>(false);
 
   // State for the geocoded longitude and latitude
-  const [coordinates, setCoordinates] = React.useState({lat: "43.796656647925026", lon: "-79.42200704246716"})
+  const [coordinates, setCoordinates] = React.useState({lat: "43.6532", lon: "-79.3832"})
 
   // Loading state for backend
   const [isLoading, setLoading] = React.useState(false);
 
+  // Pois not found state
+  const [poiNotFound, setPoiNotFound] = React.useState(false);
+
+  const [isInitialized, setisInitialized] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isInitialized) {
+      // Skip the first render
+      setisInitialized(true);
+      return;
+    }
+
+    if (pois.length == 0) {
+      setPoiNotFound(true);
+    } else {
+      setPoiNotFound(false);
+    }
+  }, [pois]);
+
   // Calculates distance w/ haversine formula
   function calcDistance(lat1: number, lon1: number, lat2: number, lon2: number){
+    if (lat1 === null || lat2 === null || lon1 === null || lon2 === null) {
+      return 0;
+    }
+
     const earthRadius = 6371
     const dLat = (lat2 - lat1) * (Math.PI / 180)
     const dLon = (lon2 - lon1) * (Math.PI / 180)
@@ -31,6 +54,10 @@ function App() {
         Math.cos(lat2 * (Math.PI / 180)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
+
+    if (a == 1) {
+      return 0;
+    }
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     const distance = earthRadius * c;
 
@@ -52,6 +79,17 @@ function App() {
         isLoading && 
 
         <img src="./assets/loading.gif" alt="Loading..." className="loading"/>
+      }
+
+      {
+        poiNotFound && 
+
+        <div className="not-found">
+          <div className="not-found-top">
+            <span className="material-icons close-not-found" onClick={() => setPoiNotFound(false)}>close</span>
+            <div className="not-found-body">No points of interest matching your query!</div>
+          </div>
+        </div>
       }
     </>
   )

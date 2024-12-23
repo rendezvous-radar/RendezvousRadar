@@ -1,7 +1,6 @@
 import pandas as pd
 import requests
 from django.http import JsonResponse
-import random
 
 # Object of inputted classifications
 def class_to_activity(classifications):
@@ -70,26 +69,50 @@ def geocodeapi(lat, lon):
 def categorize_poi(poi):
     tags = poi.get('tags', {})
 
-    # Food Category
-    if tags.get('amenity') in ['restaurant', 'cafe', 'fast_food', 'bar', 'pub', 'ice_cream'] or 'cuisine' in tags:
-        return 'food'
-    
-    # Nature category
-    if tags.get('leisure') in ['park', 'nature_reserve', 'garden'] or \
-       tags.get('natural') in ['wood', 'water', 'tree'] or \
-       tags.get('tourism') in ['picnic_site', 'viewpoint'] or \
-       tags.get('landuse') == 'forest':
-        return 'nature'
-    
-    # Shopping category
-    if 'shop' in tags or tags.get('amenity') in ['marketplace', 'pharmacy', 'convenience', 'retail']:
-        return 'shopping'
-    
-    # Sports category
-    if tags.get('leisure') in ['sports_centre', 'fitness_centre', 'stadium', 'pitch', 'swimming_pool', 'bowling_alley', 'golf_course', 'fishing', 'horse_riding', 'miniature_golf'] or \
-       'sport' in tags:
-        return 'sports'
-    
+    category_map = {
+        'food': [
+            ('amenity', {'restaurant', 'cafe', 'fast_food', 'bar', 'pub', 'ice_cream'}),
+            ('cuisine', None)
+        ],
+        'nature': [
+            ('leisure', {'park', 'nature_reserve', 'garden', 'beach_resort', 'marina', 'recreation_ground'}),
+            ('boundary', {'national_park'}),
+            ('natural', None),
+            ('place', {'island'}),
+            ('tourism', {'picnic_site', 'viewpoint', 'camp_site'}),
+            ('landuse', None),
+            ('highway', {'path', 'track', 'trail'}),
+            ('waterway', {'waterfall'})
+        ],
+        'shopping': [
+            ('shop', None), 
+            ('amenity', {'marketplace', 'pharmacy', 'convenience', 'retail'})
+        ],
+        'sports': [
+            ('sport', None), 
+            ('amenity', {'gym', 'bicycle_rental', 'dojo'}),
+            ('leisure', {'sports_centre', 'stadium', 'pitch', 'swimming_pool', 'golf_course', 'fishing', 'horse_riding', 'miniature_golf', 'ice_rink', 'track'}),
+            ('airway', {'zip_line'})
+        ],
+        'library': [
+            ('amenity', {'library'})
+        ],
+        'entertainment': [
+            ('amenity', {'arts_centre', 'cinema', 'karaoke_box', 'planetarium', 'sauna', 'theatre', }),
+            ('leisure', {'playground', 'water_park'}),
+            ('tourism', {'aquarium', 'attraction', 'theme_park', 'zoo'})
+        ],
+        'history': [
+            ('historic', None),
+            ('memorial', None)
+        ]
+    }
+
+    for category, rules in category_map.items():
+        for key, values in rules:
+            if (values is None and key in tags) or (tags.get(key) is not None and tags.get(key) in values):
+                return category
+            
     # Uncategorized POI
     return 'uncategorized_poi'
 
@@ -98,51 +121,26 @@ def batch_list(lst, batch_size):
     for i in range(0, len(lst), batch_size):
         yield lst[i:i + batch_size]
 
-def pairs_to_pois(valid_pairs, radius, lat, lon):
-    print(valid_pairs)
+def build_overpass_query(batch, radius, lat, lon):
+    """Build Overpass API query for a batch of valid pairs."""
 
-    batch_size = 10
+    return "[out:json];(" + "".join(
+        f'node(around:{radius},{lat},{lon})["{key.strip()}"="{value.strip()}"]["name"];'
+        for key, value in batch
+        ) + ");out center;"
 
-    url = "https://overpass-api.de/api/interpreter"
-    all_pois = []
+def filter_and_add_pois(elements, all_pois, valid_pairs_set, poi_counts, max_per_pair):
+    """Filters POIs on counts and valid pairs"""
+    for element in elements:
+        for key, value in element.get("tags", {}).items():
+            if (key, value) in valid_pairs_set and poi_counts[(key, value)] < max_per_pair:
+                all_pois.append(element)
+                poi_counts[(key, value)] += 1
+                break
 
-    for batch in batch_list(valid_pairs, batch_size):
-        # Creating the query for each batch
-        query = "[out:json];("
-        for pair in batch:
-            key, value = pair[0].strip(), pair[1].strip()  # Stripping any extra spaces
-            query += f'node(around:{radius},{lat},{lon})["{key}"="{value}"]["name"];'
-        query += ");out center;"
-
-        params = {'data': query}
-
-        headers = {
-            'referer': "https://main.dud3dbh8mjohs.amplifyapp.com",
-            "User-Agent": "Rendezvous-Radar",
-
-        }
-
-        try:
-            response = requests.get(url, headers=headers, params=params)
-            response.raise_for_status()
-            data = response.json()
-
-            if "elements" in data:
-                all_pois.extend(data["elements"])
-
-        except requests.exceptions.RequestException as e:
-            return JsonResponse({'error': str(e)}, status=500)
-        except ValueError:
-            return JsonResponse({'error': 'Invalid response format from API'}, status=500)
-
-    # Adding the latitude and longitude to the response
-    data = {"coordinates": {"lat": lat, "lon": lon}, "elements": all_pois}
-
-    # Limits number of returned POIs
-    data["elements"] = data["elements"][0:(int(radius) // 20) - 1] 
-    
-    for poi in data["elements"]:
-        # Add address to each POI and add overall category for markers (food, nature, shopping, sports, uncategorized_poi)
+def add_metadata_to_pois(pois):
+    """Add address and category metadata to POIs."""
+    for poi in pois:
         if "tags" in poi:
             address = ""
             addr_city = poi["tags"].get("addr:city", "")
@@ -155,8 +153,8 @@ def pairs_to_pois(valid_pairs, radius, lat, lon):
             if not addr_housenumber or not addr_street:
                 address = geocodeapi(poi.get("lat", 0), poi.get("lon", 0))
 
+            # Otherwise construct the address
             else:
-
                 address_parts = [
                     addr_housenumber + " " + addr_street,
                     addr_city,
@@ -172,6 +170,55 @@ def pairs_to_pois(valid_pairs, radius, lat, lon):
 
             poi["tags"]["category"] = categorize_poi(poi)
 
+
+def pairs_to_pois(valid_pairs, radius, lat, lon):
+    if (len(valid_pairs) == 0): 
+        return JsonResponse({
+            "message": "No valid activities were found for the given prompt.",
+            "status": "no_valid_pairs",
+            "elements": []
+        }, status=200)  # HTTP 200 OK since it's not an error, just no results
+
+    batch_size = 10
+
+    url = "https://overpass-api.de/api/interpreter"
+    all_pois = []
+
+    # Dictionary to track the count of POIs for each key-value pair
+    # Limiting the POIs for each key-value pair allows for a more diverse set of POIs
+    poi_counts = {pair: 0 for pair in valid_pairs}
+    max_per_pair = (int(radius) // 20) // len(valid_pairs)
+    # A set for fast lookup
+    valid_pairs_set = {tuple(pair) for pair in valid_pairs}
+
+    for batch in batch_list(valid_pairs, batch_size):
+        # Building query
+        params = {'data': build_overpass_query(batch, radius, lat, lon)}
+
+        headers = {
+            'referer': "https://main.dud3dbh8mjohs.amplifyapp.com",
+            "User-Agent": "Rendezvous-Radar",
+
+        }
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            if "elements" in data:
+                filter_and_add_pois(
+                    data["elements"], all_pois, valid_pairs_set, poi_counts, max_per_pair
+                )
+                
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid response format from API'}, status=500)
+
+    # Adding the latitude and longitude to the response
+    data = {"coordinates": {"lat": lat, "lon": lon}, "elements": all_pois}
+    add_metadata_to_pois(data["elements"])
+    
     # Return the data as a JSON response
     return JsonResponse(data, safe=False)
 

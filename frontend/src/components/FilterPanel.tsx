@@ -121,7 +121,6 @@ export default function FilterPanel(
             const res = await axios.get(
                 `${import.meta.env.VITE_BACKEND_LINK}/ai-search/?lat=${props.coordinates.lat}&lon=${props.coordinates.lon}&radius=${aiRadius}&prompt=${aiInput}`
             )
-            // TODO: ADD A NOT FOUND
             props.setPois(res.data.elements);
         } catch (err) {
             console.log(err);
