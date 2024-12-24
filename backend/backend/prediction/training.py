@@ -168,7 +168,15 @@ prompt = "Suggest fun activities for the day."
 output = set(generate_filtered_output(prompt, num_beams=5, max_length=500))
 print("Generated Output:", output)
 
+prompt = "Soccer fields nearby."
+output = set(generate_filtered_output(prompt, num_beams=5, max_length=500))
+print("Generated Output:", output)
+
+prompt = "Where can I play basketball"
+output = set(generate_filtered_output(prompt, num_beams=5, max_length=500))
+print("Generated Output:", output)
+
 # Push model and tokenizer to Hugging Face Hub
-trainer.save_model("./updated_model")
-model.push_to_hub("jkim03/rendezvous-radar-model", force=True)
-tokenizer.push_to_hub("jkim03/rendezvous-radar-model", force=True)
+# trainer.save_model("./updated_model")
+# model.push_to_hub("jkim03/rendezvous-radar-model", force=True)
+# tokenizer.push_to_hub("jkim03/rendezvous-radar-model", force=True)

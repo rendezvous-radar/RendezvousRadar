@@ -70,7 +70,7 @@ Where can I find a cool mural to check out?,mural
 Any famous sculptures I should see?,sculpture
 Is there a memorial or statue to honor a historic event?,war_memorial
 Looking for a tranquil meadow for a picnic or nature walk.,meadow
-Are there any recreational grounds for outdoor sports?,recreation_ground
+Are there any recreational grounds for outdoor sports?,"recreation_ground,national_park,park,pitch"
 Is there a beautiful reservoir where I can relax?,reservoir
 Where can I taste local wines in a vineyard?,vineyard
 Looking for a beach resort to relax by the sea.,beach_resort
@@ -204,3 +204,7 @@ Are there peaceful places for a solo day out?,"memorial,chapel,garden,library,me
 Can you recommend fun group activities?,"karaoke_box,cinema,theme_park,brewery,miniature_golf"
 What are some good options for relaxation near nature?,"spa,massage,sauna,nature_reserve,meadow"
 Where can I enjoy both food and local culture?,"marketplace,bakery,biergarten,restaurant,arts_centre"
+Places to play soccer near me?,"national_park,park,pitch,sports_centre,community_centre"
+Places to play basketball near me?,"sports_centre,community_centre"
+Is there any place to swim near me?,"swimming_pool,water_park,beach,cape,bay,spring,reef,waterfall,beach_resort"
+Where is a good place to run?,"trail,path,track,gym,national_park,sports_centre"
