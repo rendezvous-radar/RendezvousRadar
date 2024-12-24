@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from django.http import JsonResponse
+from huggingface_hub import InferenceApi
 
 # Object of inputted classifications
 def class_to_activity(classifications):

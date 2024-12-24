@@ -1,9 +1,9 @@
 from django.http import JsonResponse
 import requests
-import pandas as pd
-from .model_loader import get_model_tokenizer
+from .model_loader import get_activities
 from .prediction.query import generate_response
 from .helper import class_to_activity, pairs_to_pois, extract_key_value_tuples
+from huggingface_hub import InferenceApi
 
 # Finds amenities near address
 # Example url: http://127.0.0.1:8000/search-location/?lat=43.6534817&lon=-79.3839347&radius=1000&experiences=family-friendly&activity=indoor,dining&audience=families,groups&seasons=summer,autumn,any&times=any
@@ -99,11 +99,15 @@ def findFromPrompt(request):
     if not lat or not lon or not prompt or not radius:
         return JsonResponse({'error': 'Parameter(s) are missing'}, status=400)
     
-    # Load model, tokenizer, valid sequences and valid_activity_types
-    model, tokenizer, valid_activity_sequences, valid_activity_types  = get_model_tokenizer()
+    # Use inference api to retrieve data
+    model_id = "jkim03/rendezvous-radar-model"
+
+    # Load valid_activity_types
+    valid_activity_types  = get_activities()
 
     # Returns prediction categorization from model
-    preds = generate_response(model, prompt, tokenizer, valid_activity_sequences, valid_activity_types)
+    preds = generate_response(model_id, prompt, valid_activity_types)
+    print(preds)
     
     key_val_list = extract_key_value_tuples("activities.csv", preds)
 

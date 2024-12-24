@@ -1,44 +1,58 @@
-import torch
-from .CustomLogitsProcessor import ConstrainLogitsProcessor
 import re
+import requests
+import time
+from dotenv import load_dotenv
+import os
 
-def generate_response(model, prompt, tokenizer, valid_activity_sequences, valid_activity_types):
+def generate_response(model_id, prompt, valid_activity_types):
     num_beams, max_length = 5, 500
 
-    # Tokenize the input prompt
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, padding=True)
+    # Load environment variables from environment file
+    load_dotenv()
 
-    logits_processor = ConstrainLogitsProcessor(valid_activity_sequences)
+    api_url = f"https://api-inference.huggingface.co/models/{model_id}"
+    headers = {"Authorization": f"Bearer {os.getenv('HUGGINGFACE_TOKEN')}"}
 
-    attention_mask = inputs.get('attention_mask', None)
+    # Prepare Payload for the API
+    data = {
+        "inputs": prompt,
+        "parameters": {
+            "max_length": max_length,
+            "num_beams": num_beams,
+            "early_stopping": True,
+            "repetition_penalty": 3.0,
+            "do_sample": True,
+        },
+    }
 
-    # Set pad_token_id explicitly to eos_token_id to prevent EOS interference
-    model.config.pad_token_id = model.config.eos_token_id
 
-    # Generate text 
-    with torch.no_grad():
-        generated_ids = model.generate(
-            input_ids = inputs['input_ids'], 
-            max_length=max_length, 
-            num_beams=num_beams, 
-            early_stopping=True,
-            repetition_penalty=3.0,
-            attention_mask=attention_mask,
-            pad_token_id=model.config.pad_token_id,
-            do_sample=True,
-            logits_processor=[logits_processor]
-        )
-    
+    while True:
+        # Send Request to Hugging Face Inference API
+        response = requests.post(api_url, headers=headers, json=data)
+
+        if response.status_code == 503:
+            print("Model is loading. Retrying...")
+            time.sleep(response.json().get("estimated_time", 10))  # Wait for the estimated load time
+        elif response.status_code == 200:
+            break
+        else:
+            raise Exception(f"API Error: {response.status_code} - {response.json()}")
+            
     # Decode the generated IDs into text
-    generated_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)[len(prompt):] # Removing prompt from generated_text
+    generated_text = response.json()[0].get("generated_text", "")
+    generated_text = generated_text[len(prompt):] # Removing prompt from generated_text
     generated_text = re.sub(r'[^a-zA-Z0-9, ]', '', generated_text)  # Remove bad characters
+    print(generated_text)
 
-    # Split the generated text by commas and filter out invalid activities
-    activity_list = [activity.strip() for activity in generated_text.split(',')]
+    # Split the generated text by punctuation and capital letters
+    activity_list = [activity.strip() for activity in re.split(r'\W+|(?=[A-Z])', generated_text)]
+    print(activity_list)
 
     # correcting multi-word values
     corrections = {
         "archaeologicalsite": "archaeological_site",
+        "swimming": "swimming_pool",
+        "pool": "swimming_pool",
         "artscentre": "arts_centre",
         "beachresort": "beach_resort",
         "bicyclerental": "bicycle_rental",
