@@ -170,7 +170,7 @@ def pairs_to_pois(valid_pairs, radius, lat, lon):
             "elements": []
         }, status=200)  # HTTP 200 OK since it's not an error, just no results
 
-    batch_size = 20
+    batch_size = 10
 
     url = "https://overpass-api.de/api/interpreter"
     all_pois = []
