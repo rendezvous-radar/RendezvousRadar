@@ -84,7 +84,7 @@ export default function FilterPanel(
         // Validate query fields
         if(props.query.radius !== 0 &&
             !isNaN(Number(props.query.radius)) && 
-            Number(props.query.radius) <= 30 &&
+            Number(props.query.radius) <= 20 &&
             props.query.experience.length !== 0 && 
             props.query.activity.length !== 0 && 
             props.query.audience.length !== 0 && 
@@ -142,7 +142,7 @@ export default function FilterPanel(
             <div className={`${searchType === "manual" ? "visible-panel" : "invisible-panel"}`}>
                 <div className="filter-inputs">
                     <h4>Radius:</h4>
-                    {['1', '5', '10', '20'].map(radius => (
+                    {['1', '5', '10'].map(radius => (
                         <button
                             key={radius}
                             className={props.query.radius == Number(radius) ? 'option-button selected' : 'option-button'}
@@ -232,7 +232,7 @@ export default function FilterPanel(
                 {
                     isWrong && 
                     <div className="error-msg">
-                        <div>Select at least one filter per category, and a proper number that doesn't exceed 30 km for the radius.</div>
+                        <div>Select at least one filter per category, and a proper number that doesn't exceed 20 km for the radius.</div>
                         <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
                     </div>
                 }
@@ -245,7 +245,6 @@ export default function FilterPanel(
                         <option value="1000">1 km</option>
                         <option value="5000">5 km</option>
                         <option value="10000">10 km</option>
-                        <option value="20000">20 km</option>
                     </select>
                     <button className="ai-button" onClick={handleAIQuery}><span className="material-icons searchIcon">search</span></button>
                 </div>

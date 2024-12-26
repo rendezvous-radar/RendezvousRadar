@@ -1,7 +1,6 @@
 import pandas as pd
 import requests
 from django.http import JsonResponse
-from huggingface_hub import InferenceApi
 
 # Object of inputted classifications
 def class_to_activity(classifications):
@@ -117,27 +116,18 @@ def categorize_poi(poi):
     # Uncategorized POI
     return 'uncategorized_poi'
 
-# Helper function to split a list into batches.
 def batch_list(lst, batch_size):
-    for i in range(0, len(lst), batch_size):
+    """Helper function to split a list into batches. Max pairs is 30 to limit API calls"""
+    for i in range(0, 30, batch_size):
         yield lst[i:i + batch_size]
 
-def build_overpass_query(batch, radius, lat, lon):
+def build_overpass_query(batch, radius, lat, lon, limit):
     """Build Overpass API query for a batch of valid pairs."""
 
     return "[out:json];(" + "".join(
         f'node(around:{radius},{lat},{lon})["{key.strip()}"="{value.strip()}"]["name"];'
         for key, value in batch
-        ) + ");out center;"
-
-def filter_and_add_pois(elements, all_pois, valid_pairs_set, poi_counts, max_per_pair):
-    """Filters POIs on counts and valid pairs"""
-    for element in elements:
-        for key, value in element.get("tags", {}).items():
-            if (key, value) in valid_pairs_set and poi_counts[(key, value)] < max_per_pair:
-                all_pois.append(element)
-                poi_counts[(key, value)] += 1
-                break
+        ) + f");out {limit} center;"
 
 def add_metadata_to_pois(pois):
     """Add address and category metadata to POIs."""
@@ -180,36 +170,31 @@ def pairs_to_pois(valid_pairs, radius, lat, lon):
             "elements": []
         }, status=200)  # HTTP 200 OK since it's not an error, just no results
 
-    batch_size = 10
+    batch_size = 20
 
     url = "https://overpass-api.de/api/interpreter"
     all_pois = []
 
-    # Dictionary to track the count of POIs for each key-value pair
-    # Limiting the POIs for each key-value pair allows for a more diverse set of POIs
-    poi_counts = {pair: 0 for pair in valid_pairs}
-    max_per_pair = (int(radius) // 20) // len(valid_pairs)
-    # A set for fast lookup
-    valid_pairs_set = {tuple(pair) for pair in valid_pairs}
+    # Limits the amount of POIs returned per query
+    max_per_lookup = 20
 
     for batch in batch_list(valid_pairs, batch_size):
         # Building query
-        params = {'data': build_overpass_query(batch, radius, lat, lon)}
+        params = {'data': build_overpass_query(batch, radius, lat, lon, max_per_lookup)}
 
         headers = {
             'referer': "https://main.dud3dbh8mjohs.amplifyapp.com",
             "User-Agent": "Rendezvous-Radar",
-
         }
+
         try:
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
             data = response.json()
 
             if "elements" in data:
-                filter_and_add_pois(
-                    data["elements"], all_pois, valid_pairs_set, poi_counts, max_per_pair
-                )
+                for element in data["elements"]:
+                    all_pois.append(element)
                 
         except requests.exceptions.RequestException as e:
             return JsonResponse({'error': str(e)}, status=500)

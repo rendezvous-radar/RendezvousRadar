@@ -42,54 +42,57 @@ def generate_response(model_id, prompt, valid_activity_types):
     generated_text = response.json()[0].get("generated_text", "")
     generated_text = generated_text[len(prompt):] # Removing prompt from generated_text
     generated_text = re.sub(r'[^a-zA-Z0-9, ]', '', generated_text)  # Remove bad characters
-    print(generated_text)
 
-    # Split the generated text by punctuation and capital letters
-    activity_list = [activity.strip() for activity in re.split(r'\W+|(?=[A-Z])', generated_text)]
-    print(activity_list)
-
-    # correcting multi-word values
     corrections = {
         "archaeologicalsite": "archaeological_site",
         "swimming": "swimming_pool",
         "pool": "swimming_pool",
+        "archaeological": "archaeological_site",
         "artscentre": "arts_centre",
+        "arts": "arts_centre",
         "beachresort": "beach_resort",
         "bicyclerental": "bicycle_rental",
+        "bicycle": "bicycle_rental",
         "campsite": "camp_site",
+        "camp": "camp_site",
         "caveentrance": "cave_entrance",
+        "cave": "cave_entrance",
         "communitycentre": "community_centre",
+        "community": "community_centre",
         "golfcourse": "golf_course",
+        "golf": "golf_course",
         "horseriding": "horse_riding",
+        "horse": "horse_riding",
         "icecream": "ice_cream",
         "icerink": "ice_rink",
         "karaokebox": "karaoke_box",
+        "karaoke": "karaoke_box",
         "miniaturegolf": "miniature_golf",
         "nationalpark": "national_park",
         "naturereserve": "nature_reserve",
         "picnicsite": "picnic_site",
+        "picnic": "picnic_site",
         "placeofworship": "place_of_worship",
-        "recreationground": "reacreation_ground",
+        "worship": "place_of_worship",
+        "recreationground": "recreation_ground",
         "shoppingcentre": "shopping_centre",
+        "shopping": "shopping_centre",
         "sportscentre": "sports_centre",
+        "sports": "sports_centre",
         "swimmingpool": "swimming_pool",
+        "swimming": "swimming_pool",
         "themepark": "theme_park",
         "warmemorial": "war_memorial",
         "waterpark": "water_park",
         "zipline": "zip_line"
     }
 
-    filtered_activities = set()
-    for activity in activity_list:
-        if activity in filtered_activities:
-            continue
-        
-        if activity in valid_activity_types:
-            filtered_activities.add(activity)
+    all_keywords = set(valid_activity_types).union(corrections.keys())
+    pattern = r'(' + '|'.join(map(re.escape, all_keywords)) + r')'
 
-        elif activity in corrections:
-            filtered_activities.add(corrections[activity])
-    
-    # Return the filtered activities as a list
+    matches = set(re.findall(pattern, generated_text.lower()))
+
+    filtered_activities = [corrections.get(match, match) for match in matches]
+
     return filtered_activities
 

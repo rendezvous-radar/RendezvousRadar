@@ -40,7 +40,11 @@ def find_poi(request):
     valid_pairs = class_to_activity(query_dict)
 
     if len(valid_pairs) < 1:
-        return JsonResponse({'error': 'No activities found.'}, status=400)
+        return JsonResponse({
+            "message": "No valid activities were found for the given prompt.",
+            "status": "no_valid_pairs",
+            "elements": []
+        }, status=200)
 
     return pairs_to_pois(valid_pairs, radius, lat, lon)
 
@@ -107,7 +111,6 @@ def findFromPrompt(request):
 
     # Returns prediction categorization from model
     preds = generate_response(model_id, prompt, valid_activity_types)
-    print(preds)
     
     key_val_list = extract_key_value_tuples("activities.csv", preds)
 
