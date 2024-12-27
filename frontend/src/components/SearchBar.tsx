@@ -14,9 +14,9 @@ export default function SearchBar(props: {setAddress: React.Dispatch<React.SetSt
     const [inputValue, setInputValue] = React.useState<string>("Toronto, Ontario, Canada");
 
     // Handling Submission we only want to set the address once the form is submitted, reducing API calls
-    const handleSubmit = () => {
+    const handleSubmit = React.useCallback(() => {
         props.setAddress(inputValue);
-    }
+    }, [inputValue, props]);
 
     // Sets address to current input value
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -25,8 +25,18 @@ export default function SearchBar(props: {setAddress: React.Dispatch<React.SetSt
 
     return ( 
         <div className="SearchBar">
-            <input className='searchInput' onChange={handleChange} placeholder="Toronto, Ontario, Canada"></input>
-            <button className="ai-button" onClick={handleSubmit}><span className="material-icons searchIcon">search</span></button>
+            <input 
+                className='searchInput' 
+                onChange={handleChange}
+                placeholder="Enter address to search"
+                aria-label="Enter address to search"
+            />
+            <button 
+                className="ai-button" 
+                onClick={handleSubmit}
+            >
+                <span className="material-icons searchIcon">search</span>
+            </button>
         </div>
     );
 }

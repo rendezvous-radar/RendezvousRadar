@@ -171,6 +171,7 @@
 
 .option-button.filter{
   margin-left: auto;
+  margin-bottom: 0.5rem;
 }
 
 .option-button:hover{
@@ -196,7 +197,7 @@ h4 {
   padding: 1rem;
   left: 50%;
   min-width: fit-content;
-  width: auto;
+  width: 40%;
   transform: translateX(-50%);
   justify-content: space-between;
   align-items: center;

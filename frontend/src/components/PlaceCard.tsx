@@ -1,6 +1,8 @@
 import React from 'react'
 import { Pois, PoiTags } from '../Interfaces'
 
+const ACTIVE_STYLE = { borderBottom: '2px solid #368DFF', color: '#368DFF' };
+
 /**
  * Placecard Component
  * @param {Object} props - The component props.
@@ -18,72 +20,35 @@ export default function PlaceCard(props: {
     hidden: boolean, 
     setHidden: React.Dispatch<React.SetStateAction<boolean>>}) : JSX.Element {
 
-    const [desc, setDesc] = React.useState(""); // Sets description for the POI
-    const [icon, setIcon] = React.useState(""); // Sets icon for the POI
-
     // Placecard information
     const [isOverview, setIsOverview] = React.useState<boolean>(true);
 
     // Returns the first valid tag
-    const getFirstValidTag = (tags : PoiTags) : string | undefined => {
+    const getFirstValidTag = React.useCallback((tags : PoiTags) : string | undefined => {
         const keysToCheck = ['amenity', 'shop', 'tourism', 'leisure', 'craft', 'historic'];
         return keysToCheck.find(key => tags[key as keyof PoiTags]);
-    };
+    }, []);
 
-    const capitalize = (word : string) : string => {
-        if (word) {
-            return word.charAt(0).toUpperCase() + word.slice(1);
+    const capitalize = (word : string) : string => { return word ? word.charAt(0).toUpperCase() + word.slice(1) : ''; }
+
+    const getDescription = React.useCallback((): string => {
+        const validTag = getFirstValidTag(props.poi.tags);
+
+        if (!validTag) return '';
+
+        if (validTag === 'amenity') {
+            return (
+                (props.poi.tags.cuisine ? capitalize(props.poi.tags.cuisine.replace(/_/g, ' ')) + ' ' : '') +
+                capitalize(props.poi.tags.amenity?.replace(/_/g, ' '))
+            );
+        } else if (validTag === 'shop') {
+            return capitalize(props.poi.tags.shop?.replace(/_/g, ' ') + ' shop');
         }
+        return capitalize(props.poi.tags[validTag]?.replace(/_/g, ' ') || '');
+    }, [props.poi.tags, getFirstValidTag])
 
-        else {
-            return "";
-        }
-    }
-
-    React.useEffect(() => {
-        switch(props.poi.tags.category.toLowerCase()) {
-            case "food":
-                setIcon("restaurant");
-                break;
-            case "nature":
-                setIcon("park");
-                break;
-            case "sports":
-                setIcon("sports_soccer");
-                break;
-            case "shopping":
-                setIcon("shopping_cart");
-                break;
-            default:
-                setIcon("");
-        }
-
-        const validTag : string | undefined = getFirstValidTag(props.poi.tags);
-        
-        if(validTag){
-            // If POI is amenity/restaurant
-            if (validTag == "amenity") {
-                setDesc((props.poi.tags.cuisine 
-                    ? capitalize(props.poi.tags.cuisine?.replace(/_/g, ' ')) + " " 
-                    : ""
-                ) + capitalize(props.poi.tags.amenity?.replace(/_/g, ' ')));
-            } else if (validTag == "shop") {
-                // Amenity is a shop
-                setDesc(capitalize(props.poi.tags.shop?.replace(/_/g, ' ') + " shop"));
-            } else {
-                setDesc(props.poi.tags[validTag].replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase()));
-            }
-        } else {
-            setDesc("");
-        }
-        
-    }, [props.poi]);
-
-    const handleCloseButton = () => {
-        props.setHidden(true);
-    }
-
-    const transformHours = (string: string) => {
+    const transformHours = React.useMemo(() => {
+        if (!props.poi.tags.opening_hours) return [];
         const daysMap: { [key: string]: string } = {
             "Mo": "Monday",
             "Tu": "Tuesday",
@@ -94,61 +59,84 @@ export default function PlaceCard(props: {
             "Su": "Sunday"
         };
     
-        const ranges = string.split(/,|;/);
-        const result = [] as Array<string>;
-    
-        ranges.forEach(range => {
-            // Extract the days and time range
-            const [days, time] = range.trim().split(' ');
+        const ranges = props.poi.tags.opening_hours.split(/,|;/).map((range) => range.trim());
+        
+        return ranges.flatMap((range) => {
+            const [days, time] = range.split(' ');
+            if (!days || !time) return [];
+            const formattedTime = time.replace('-', ' - ');
+            const dayList = days.split('-').map((day) => daysMap[day])
 
-            if (time) {
-                // Add spaces around the dash in the time range
-                const formattedTime = time?.replace('-', ' - ');
-        
-                // Expand day ranges like Mo-We to Mo, Tu, We
-                const expandedDays = days.split('-').map(day => daysMap[day.trim()]);
-        
-                if (expandedDays.length > 1) {
-                    const startDay = Object.keys(daysMap).indexOf(days.split('-')[0].trim());
-                    const endDay = Object.keys(daysMap).indexOf(days.split('-')[1].trim());
-        
-                    for (let i = startDay; i <= endDay; i++) {
-                        result.push(`${Object.values(daysMap)[i]}: ${formattedTime}`);
-                    }
-                } else {
-                    const singleDays = days.split(',').map(day => daysMap[day.trim()]);
-                    singleDays.forEach(day => {
-                        result.push(`${day}: ${formattedTime}`);
-                    });
-                }
+            if (dayList.length === 2) {
+                const [start, end] = dayList.map((day) => Object.keys(daysMap).indexOf(day));
+                return Object.values(daysMap).slice(start, end + 1).map((day) => `${day}: ${formattedTime}`);
             }
-    
+
+            return days.split(',').map((day) => `${daysMap[day]}: ${formattedTime}`);
         });
-    
-        return result;
-    };
+    }, [props.poi.tags.opening_hours]);
 
-    const switchView = (state: boolean) => {
-        setIsOverview(state);
-        return "done";
+    const renderIcon = React.useMemo(() => {
+        const categoryIcons : {[key: string]: string} = {
+            food: 'restaurant',
+            nature: 'park',
+            sports: 'sports_soccer',
+            shopping: 'shopping_cart',
+            library: 'local_library',
+            entertainment: 'attractions',
+            history: 'account_balance'
+        };
+
+        return categoryIcons[props.poi.tags.category?.toLowerCase()] || '';
+    }, [props.poi.tags.category]);
+
+    const amenities = [
+        { label: 'Takeaway', value: props.poi.tags.takeaway },
+        { label: 'Wheelchair', value: props.poi.tags.wheelchair },
+        { label: 'Drive Through', value: props.poi.tags.drive_through },
+        { label: 'Outdoor Seating', value: props.poi.tags.outdoor_seating },
+        { label: 'Indoor Seating', value: props.poi.tags.indoor_seating },
+    ];
+
+    const renderAmenities = () => {
+        const validAmenities = amenities.filter(amenity => amenity.value);
+
+        if (validAmenities.length === 0) {
+            return <p className="about-info">No amenities available</p>;
+        }
+
+        return amenities.map(
+            (amenity, index) =>
+                amenity.value && (
+                    <p key={index} className="about-info">
+                        {amenity.label}{' '}
+                        <span className="material-icons">
+                            {amenity.value === 'yes' ? 'check' : 'close'}
+                        </span>
+                    </p>
+                )
+        );
     }
-
-    const activeStyle = {"borderBottom": "2px solid #368DFF", "color": "#368DFF"} // Sets the style of the active window
+        
 
     return (
         <div className={`app-placecard ${props.hidden ? 'invisible' : ''}`}>
-            <div className="close-button"><span className="material-icons close" onClick={handleCloseButton}>close</span></div>
+            <div className="close-button">
+                <span className="material-icons close" onClick={() => props.setHidden(true)}>
+                    close
+                </span>
+            </div>
             <h2>{props.poi.tags.name}</h2>
-            {desc && 
+            {getDescription() && 
                 <p className="placecard-desc">
                     {
-                        desc
+                        getDescription()
                     } 
                     {
-                        icon !== "" && 
+                        renderIcon !== "" && 
                         <span>
                             •
-                            <span className="material-icons">{icon}</span>
+                            <span className="material-icons">{renderIcon}</span>
                         </span>
                     }
                 </p>
@@ -162,95 +150,56 @@ export default function PlaceCard(props: {
                 </p>
             }
             <div className="choose-window">
-                <p className="overview" style={isOverview ? activeStyle : {}} onClick={() => switchView(true)}>Overview</p>
-                <p className="overview" style={isOverview ? {} : activeStyle} onClick={() => switchView(false)}>About</p>
+                <p className="overview" style={isOverview ? ACTIVE_STYLE : {}} onClick={() => setIsOverview(true)}>Overview</p>
+                <p className="overview" style={isOverview ? {} : ACTIVE_STYLE} onClick={() => setIsOverview(false)}>About</p>
             </div>
 
-            {isOverview &&
+            {isOverview ? (
                 <div>
-                    <p className="distance"><span className="material-icons">straighten</span>{`${Math.round(props.distance * 100) / 100}km away`}</p>
-                    <p className="address"><span className="material-icons">place</span>{props.poi.tags.address}</p>
-                    {props.poi.tags.opening_hours && 
+                    <p className="distance">
+                        <span className="material-icons">straighten</span>
+                        {`${Math.round(props.distance * 100) / 100}km away`}
+                    </p>
+                    <p className="address">
+                        <span className="material-icons">place</span>
+                        {props.poi.tags.address}
+                    </p>
+                    {transformHours.length > 0 && (
                         <div className="address">
                             <span className="material-icons">schedule</span>
                             <ul className="opening-hours-list">
-                                {transformHours(props.poi.tags.opening_hours).map((hour, index) => (
-                                    <li key={index} className="opening-hours">{hour}</li>
+                                {transformHours.map((hour, index) => (
+                                    <li key={index} className="opening-hours">
+                                        {hour}
+                                    </li>
                                 ))}
                             </ul>
                         </div>
-                    }
+                    )}
 
-                    {props.poi.tags.phone && 
-                        <p className="address"><span className="material-icons">phone</span>{props.poi.tags.phone}</p>
-                    }
-                    
-                    {props.poi.tags.website && 
-                        <a className="address website" href={props.poi.tags.website}><span className="material-icons">link</span>Website Link</a>
-                    }
-
-                    {props.poi.tags.email && 
-                        <p className="address"><span className="material-icons">email</span>{props.poi.tags.email}</p>
-                    }   
-                </div>
-            }
-
-            {!isOverview &&
-
-                <div className="about-info-grid">
-                    {props.poi.tags.takeaway &&
-                        <p className="about-info">Takeaway 
-                            {
-                                props.poi.tags.takeaway == "yes" ?
-                                <span className="material-icons check">check</span> : 
-                                <span className="material-icons closed">closed</span>
-                            }
+                    {props.poi.tags.phone && (
+                        <p className="address">
+                            <span className="material-icons">phone</span>
+                            {props.poi.tags.phone}
                         </p>
-                    }
+                    )}
+                    
+                    {props.poi.tags.website && (
+                        <a className="address website" href={props.poi.tags.website}>
+                            <span className="material-icons">link</span>Website Link
+                        </a>
+                    )}
 
-                    {props.poi.tags.wheelchair &&
-                        <p className="about-info">Wheelchair 
-                        {
-                            props.poi.tags.wheelchair == "yes" ?
-                            <span className="material-icons check">check</span> : 
-                            <span className="material-icons closed">closed</span>
-                        }
-                    </p>
-                    }
-
-                    {props.poi.tags.drive_through &&
-                        <p className="about-info">Drive Through 
-                        {
-                            props.poi.tags.drive_through == "yes" ?
-                            <span className="material-icons check">check</span> : 
-                            <span className="material-icons closed">closed</span>
-                        }
-                    </p>
-                    }
-
-                    {props.poi.tags.outdoor_seating &&
-                        <p className="about-info">Outdoor Seating 
-                        {
-                            props.poi.tags.outdoor_seating == "yes" ?
-                            <span className="material-icons check">check</span> : 
-                            <span className="material-icons closed">closed</span>
-                        }
-                    </p>
-                    }
-
-                    {props.poi.tags.indoor_seating &&
-                        <p className="about-info">Indoor Seating 
-                        {
-                            props.poi.tags.indoor_seating == "yes" ?
-                            <span className="material-icons check">check</span> : 
-                            <span className="material-icons closed">closed</span>
-                        }
-                    </p>
-                    }
+                    {props.poi.tags.email && (
+                        <p className="address">
+                            <span className="material-icons">email</span>
+                            {props.poi.tags.email}
+                        </p>
+                    )}   
                 </div>
-
-            }
-
+            ) : (
+                <div className="about-info-grid">{renderAmenities()}</div>
+            )}
         </div>
     )
 }

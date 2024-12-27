@@ -2,7 +2,7 @@ import React from 'react'
 import './App.css'
 import Search from './components/Search'
 import { Pois } from './Interfaces'
-import Map from './components/Map'
+import LeafletMap from './components/LeafletMap'
 import PlaceCard from './components/PlaceCard'
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
   }, [pois]);
 
   // Calculates distance w/ haversine formula
-  function calcDistance(lat1: number, lon1: number, lat2: number, lon2: number){
+  const calcDistance = React.useCallback((lat1: number, lon1: number, lat2: number, lon2: number) => {
     if (lat1 === null || lat2 === null || lon1 === null || lon2 === null) {
       return 0;
     }
@@ -55,24 +55,30 @@ function App() {
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
 
-    if (a == 1) {
-      return 0;
-    }
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    const distance = earthRadius * c;
+    return earthRadius * c;
+  }, []);
 
-    return distance;
-}
+  const distance = React.useMemo(() => {
+    if (pois.length > 0) {
+      return calcDistance(Number(coordinates.lat), Number(coordinates.lon), pois[poiIndex].lat, pois[poiIndex].lon);
+    }
+    return 0;
+  }, [pois, poiIndex, coordinates, calcDistance]);
   
   return (
     <>
-      <Search setPois={setPois} setCoordinates={setCoordinates} coordinates={coordinates} setLoading={setLoading}></Search>
-      <Map pois={pois} poiIndex={poiIndex} setPoiIndex={setPoiIndex} coordinates={coordinates} setHidePlacecard={setHidePlacecard}></Map>
+      <Search setPois={setPois} setCoordinates={setCoordinates} coordinates={coordinates} setLoading={setLoading}/>
+      <LeafletMap pois={pois} poiIndex={poiIndex} setPoiIndex={setPoiIndex} coordinates={coordinates} setHidePlacecard={setHidePlacecard}/>
       {
-        pois.length > 0 ? 
+        pois.length > 0 &&
 
-        <PlaceCard key={pois[poiIndex].id} poi={pois[poiIndex]} distance={calcDistance(Number(coordinates.lat), Number(coordinates.lon), pois[poiIndex].lat, pois[poiIndex].lon)} setHidden={setHidePlacecard} hidden={hidePlacecard}></PlaceCard> :
-        ""
+        <PlaceCard 
+          key={`${pois[poiIndex].id}-${poiIndex}`} // Combine id and index to ensure uniqueness 
+          poi={pois[poiIndex]} 
+          distance={distance} 
+          setHidden={setHidePlacecard} 
+          hidden={hidePlacecard}/>
       }
 
       {
@@ -86,7 +92,7 @@ function App() {
 
         <div className="not-found">
           <div className="not-found-top">
-            <span className="material-icons close-not-found" onClick={() => setPoiNotFound(false)}>close</span>
+            <span className="material-icons close-not-found" onClick={() => setPois([])}>close</span>
             <div className="not-found-body">No points of interest matching your query!</div>
           </div>
         </div>

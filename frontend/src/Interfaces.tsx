@@ -16,7 +16,6 @@ export interface Coordinates {
     lon: string
 }
 
-// TODO: Determine what a POI will contain
 export interface Pois {
     id: string,
     lat: number,

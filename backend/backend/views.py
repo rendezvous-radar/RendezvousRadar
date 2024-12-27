@@ -91,9 +91,14 @@ def findCoordinates(request):
     # Return data
     return JsonResponse(data)
 
-# Finds amenities from prompt
-# Example url: http://127.0.0.1:8000/ai-search/?lat=43.6534817&lon=-79.3839347&radius=1000&prompt=Suggest+a+list+of+activities+for+a+romantic+date.
 def findFromPrompt(request):
+    """
+        Finds activities/POIs from a prompt.
+        Calls the LLM model trained with distilgpt from InferenceAPI.
+        Then processes data and calls Overpass API.
+        Example url: http://127.0.0.1:8000/ai-search/?lat=43.6534817&lon=-79.3839347&radius=1000&prompt=Suggest+a+list+of+activities+for+a+romantic+date.
+    """
+    
     # Get parameters from query parameters
     lat = request.GET.get('lat')
     lon = request.GET.get('lon')

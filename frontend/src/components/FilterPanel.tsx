@@ -1,6 +1,15 @@
 import React, { ChangeEvent } from 'react';
 import { Coordinates, Pois, QueryType } from '../Interfaces';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
+
+// Reusable filter options data
+const FILTER_OPTIONS = {
+    experience: ['Romantic', 'Family-Friendly', 'Adventure', 'Relaxation', 'Cultural', 'Educational', 'Any'],
+    activity: ['Outdoor', 'Indoor', 'Sports', 'Dining', 'Shopping', 'Entertainment', 'Any'],
+    audience: ['Couples', 'Families', 'Groups', 'Solo', 'Any'],
+    time: ['Morning', 'Afternoon', 'Evening', 'Night', 'Any'],
+    season: ['Winter', 'Spring', 'Summer', 'Fall', 'Any']
+};
 
 /**
  * FilterPanel Component
@@ -33,6 +42,9 @@ export default function FilterPanel(
 
     // Show Error Message State
     const [isWrong, setIsWrong] = React.useState<boolean>(false);
+
+    // Error message
+    const [errMsg, setErrMsg] = React.useState<string>("");
 
     // State to determine filter form versus AI search
     const [searchType, setSearchType] = React.useState<string>("manual");
@@ -75,27 +87,25 @@ export default function FilterPanel(
         }));
     };
 
-    const handleFilterOptionClick = (event: React.MouseEvent<HTMLParagraphElement>) => {
-        setSearchType(event.currentTarget.className);
-    }
-
     const handleApplyFilterClick = () => {
+        const isValid = props.query.radius !== 0 &&
+        !isNaN(Number(props.query.radius)) && 
+        Number(props.query.radius) <= 20 &&
+        props.query.experience.length !== 0 && 
+        props.query.activity.length !== 0 && 
+        props.query.audience.length !== 0 && 
+        props.query.time.length !== 0 && 
+        props.query.season.length !== 0;
 
         // Validate query fields
-        if(props.query.radius !== 0 &&
-            !isNaN(Number(props.query.radius)) && 
-            Number(props.query.radius) <= 20 &&
-            props.query.experience.length !== 0 && 
-            props.query.activity.length !== 0 && 
-            props.query.audience.length !== 0 && 
-            props.query.time.length !== 0 && 
-            props.query.season.length !== 0) {
-                setIsWrong(false);
-                props.setSearch(true);
-                props.setFilterHidden(true);
+        if(isValid) {
+            setIsWrong(false);
+            props.setSearch(true);
+            props.setFilterHidden(true);
         }
-
+        
         else{
+            setErrMsg("Select at least one filter per category, and a proper number that doesn't exceed 20 km for the radius.");
             setIsWrong(true);
         }
 
@@ -103,42 +113,74 @@ export default function FilterPanel(
 
     // Sets address to current input value
     const handleAiInput = (event: ChangeEvent<HTMLInputElement>) => {
-        if(event.target.className == "ai-search") {
-            setAIInput(event?.target.value);
-        }
+        setAIInput(event?.target.value);
     }
 
     const handleAiRadius = (event: ChangeEvent<HTMLSelectElement>) => {
-        if (event.target.className == "ai-select") {
-            setAiRadius(Number(event?.target.value))
-        }
+        setAiRadius(Number(event?.target.value))
     } 
 
     async function handleAIQuery() {
-        props.setLoading(true);
         props.setFilterHidden(true);
+        props.setLoading(true);
+        setIsWrong(false);
         try {
             const res = await axios.get(
                 `${import.meta.env.VITE_BACKEND_LINK}/ai-search/?lat=${props.coordinates.lat}&lon=${props.coordinates.lon}&radius=${aiRadius}&prompt=${aiInput}`
             )
             props.setPois(res.data.elements);
-        } catch (err) {
-            console.log(err);
+        } catch (err : unknown) {
+            setIsWrong(true);
+            props.setFilterHidden(false);
+            if (isAxiosError(err) && err.response) {
+                switch (err.response.status) {
+                    case 400:
+                        setErrMsg("Invalid request. Please check your input and try again.");
+                        break;
+                    case 401:
+                        setErrMsg("You need to log in to perform this action.");
+                        break;
+                    case 403:
+                        setErrMsg("You do not have permission to access this resource.");
+                        break;
+                    case 404:
+                        setErrMsg("The requested resource was not found.");
+                        break;
+                    case 500:
+                        setErrMsg("An error occurred on our server. Please try again later.");
+                        break;
+                    default:
+                        setErrMsg("An unexpected error occurred. Please try again.");
+                }
+            }
         } finally {
             props.setLoading(false);
-
         }
     }
 
     const activeStyle = {"borderBottom": "2px solid #368DFF", "color": "#368DFF"} // Sets the style of the active window
 
+    // Helper function for rendering filter buttons
+    const renderFilterButtons = (filterType: 'experience' | 'activity' | 'audience' | 'time' | 'season') => {
+        return FILTER_OPTIONS[filterType].map((option) => (
+        <button
+            key={option}
+            className={props.query[filterType].includes(option.toLowerCase()) ? 'option-button selected' : 'option-button'}
+            onClick={() => handleFilterClick(filterType, option.toLowerCase())}
+        >
+            {option}
+        </button>
+        ));
+    };
+  
     return ( 
         <div className={`filter-panel ${props.className}`}>
             <div className="choose-window-filter"> 
-                <p className="manual" onClick={handleFilterOptionClick} style={searchType === "manual" ? activeStyle : {}}>Manual Filters</p>
-                <p className="ai-powered" onClick={handleFilterOptionClick} style={searchType === "ai-powered" ? activeStyle : {}}>AI Powered Search</p>
+                <p className="manual" onClick={() => setSearchType('manual')} style={searchType === "manual" ? activeStyle : {}}>Manual Filters</p>
+                <p className="ai-powered" onClick={() => setSearchType('ai-powered')} style={searchType === "ai-powered" ? activeStyle : {}}>AI Powered Search</p>
             </div>
-            
+
+            {/* Manual Filters */}
             <div className={`${searchType === "manual" ? "visible-panel" : "invisible-panel"}`}>
                 <div className="filter-inputs">
                     <h4>Radius:</h4>
@@ -167,80 +209,20 @@ export default function FilterPanel(
                         </div>
                     }
                 </div>
-
-                <div className="filter-inputs">
-                    <h4>Experience:</h4>
-                    {['Romantic', 'Family-Friendly', 'Adventure', 'Relaxation', 'Cultural', 'Educational', 'Any'].map(experience => (
-                        <button
-                            key={experience}
-                            className={props.query.experience.includes(experience.toLowerCase()) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('experience', experience.toLowerCase())}
-                        >
-                            {experience}
-                        </button>))}
-                </div>
-
-                <div className="filter-inputs">
-                    <h4>Activity:</h4>
-                    {['Outdoor', 'Indoor', 'Sports', 'Dining', 'Shopping', 'Entertainment', 'Any'].map(activity => (
-                        <button
-                            key={activity}
-                            className={props.query.activity.includes(activity.toLowerCase()) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('activity', activity.toLowerCase())}
-                        >
-                            {activity}
-                        </button>))}
-                </div>
-                
-                <div className="filter-inputs">
-                    <h4>Audience:</h4>
-                    {['Couples', 'Families', 'Groups', 'Solo', 'Any'].map(audience => (
-                        <button
-                            key={audience}
-                            className={props.query.audience.includes(audience.toLowerCase()) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('audience', audience.toLowerCase())}
-                        >
-                            {audience}
-                        </button>))}
-                </div>
-
-                <div className="filter-inputs">
-                    <h4>Time:</h4>
-                    {['Morning', 'Afternoon', 'Evening', 'Night', 'Any'].map(time => (
-                        <button
-                            key={time}
-                            className={props.query.time.includes(time.toLowerCase()) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('time', time.toLowerCase())}
-                        >
-                            {time}
-                        </button>))}
-                </div>
-                
-                <div className="filter-inputs">
-                    <h4>Season:</h4>
-                    {['Winter', 'Spring', 'Summer', 'Fall', 'Any'].map(season => (
-                        <button
-                            key={season}
-                            className={props.query.season.includes(season.toLowerCase()) ? 'option-button selected' : 'option-button'}
-                            onClick={() => handleFilterClick('season', season.toLowerCase())}
-                        >
-                            {season}
-                        </button>))}
-
-                    <button className='option-button filter' onClick={() => handleApplyFilterClick()}>Apply Filters</button>
-                </div>
-                {
-                    isWrong && 
-                    <div className="error-msg">
-                        <div>Select at least one filter per category, and a proper number that doesn't exceed 20 km for the radius.</div>
-                        <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
+                {['experience', 'activity', 'audience', 'time', 'season'].map((filterType) => (
+                    <div className="filter-inputs" key={filterType}>
+                    <h4>{filterType.charAt(0).toUpperCase() + filterType.slice(1)}:</h4>
+                    {renderFilterButtons(filterType as 'experience' | 'activity' | 'audience' | 'time' | 'season')}
                     </div>
-                }
+                ))}
+
+                <button className='option-button filter' onClick={() => handleApplyFilterClick()}>Apply Filters</button>
             </div>
 
+            {/* AI Search */}
             <div className={`ai-panel ${searchType === "ai-powered" ? "visible-panel" : "invisible-panel"}`}>
                 <div className='ai-form'>
-                    <input className="ai-search" placeholder='Give me some romantic date spots...' onChange={handleAiInput}></input>
+                    <input className="ai-search" placeholder='Give me some fun activities to do...' onChange={handleAiInput}></input>
                     <select id="range" name="range" className="ai-select" onChange={handleAiRadius}>
                         <option value="1000">1 km</option>
                         <option value="5000">5 km</option>
@@ -250,6 +232,13 @@ export default function FilterPanel(
                 </div>
             </div>
 
+            {
+                isWrong && 
+                <div className="error-msg">
+                    <div>{errMsg}</div>
+                    <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
+                </div>
+            }
         </div> 
         
     );

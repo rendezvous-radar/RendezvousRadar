@@ -2,7 +2,7 @@ import React from 'react';
 import FilterPanel from './FilterPanel';
 import NavBar from './NavBar';
 import { CoordinateResponse, Coordinates, Pois, QueryType } from '../Interfaces';
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 
 /**
  * Search Component
@@ -39,6 +39,36 @@ export default function Search(props: {
     // State for address string
     const [address, setAddress] = React.useState<string>("Toronto, Ontario, Canada");
 
+    // Show Error Message State
+    const [isWrong, setIsWrong] = React.useState<boolean>(false);
+
+    // Error message
+    const [errMsg, setErrMsg] = React.useState<string>("");
+
+    function handleError(err : unknown) {
+        if (isAxiosError(err) && err.response) {
+            switch (err.response.status) {
+                case 400:
+                    setErrMsg("Invalid request. Please check your input and try again.");
+                    break;
+                case 401:
+                    setErrMsg("You need to log in to perform this action.");
+                    break;
+                case 403:
+                    setErrMsg("You do not have permission to access this resource.");
+                    break;
+                case 404:
+                    setErrMsg("The requested resource was not found.");
+                    break;
+                case 500:
+                    setErrMsg("An error occurred on our server. Please try again later.");
+                    break;
+                default:
+                    setErrMsg("An unexpected error occurred. Please try again.");
+            }
+        }
+    }
+
     async function getPois() {
         props.setLoading(true);
         try {
@@ -49,8 +79,8 @@ export default function Search(props: {
             props.setPois(res.data.elements);
 
         } catch (err) {
-            // TODO: What to do with API call error
-            console.log(err);
+            setIsWrong(true);
+            handleError(err);
         } finally {
             props.setLoading(false);
         }
@@ -70,7 +100,8 @@ export default function Search(props: {
             props.setCoordinates(res.data);
 
         } catch (err) {
-            console.log(err);
+            setIsWrong(true);                
+            handleError(err);
         } finally {
             props.setLoading(false);
         }
@@ -104,8 +135,24 @@ export default function Search(props: {
 
     return ( 
         <div className='search'>
-            <NavBar setFilterHidden={setFilterHidden} setAddress={setAddress}></NavBar>
-            <FilterPanel query={query} setQuery={setQuery} setSearch={setSearch} className={filterHidden ? 'filter-panel-hidden' : 'filter-panel-visible'} setFilterHidden={setFilterHidden} coordinates={props.coordinates} setLoading={props.setLoading} setPois={props.setPois}></FilterPanel>
+            <NavBar setFilterHidden={setFilterHidden} setAddress={setAddress}/>
+            <FilterPanel 
+                query={query} 
+                setQuery={setQuery} 
+                setSearch={setSearch} 
+                className={filterHidden ? 'filter-panel-hidden' : 'filter-panel-visible'} 
+                setFilterHidden={setFilterHidden} 
+                coordinates={props.coordinates} 
+                setLoading={props.setLoading} 
+                setPois={props.setPois}/>
+            {
+                isWrong && 
+                <div className="error-msg">
+                    <div>{errMsg}</div>
+                    <span className="material-icons close-err" onClick={() => setIsWrong(false)}>close</span>
+                </div>
+            }
         </div>
+
     );
 }
