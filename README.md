@@ -1,15 +1,15 @@
 # 📌 Rendezvous Radar
 
-This app allows users to search for activities. Users can manually select activity categories or input a text prompt, which is analyzed by a custom classification model to generate relevant results.
+This app allows users to search for activities. Users can manually select activity categories or input a text prompt, which is analyzed by a large language model to generate relevant results.
 
-This app gets POIs, its data, and creates the map using the OpenStreetMap (OSM) API, geocodes and reverse geocodes using the Nominatim API, and a trained multi-label BERT classification model to predict activity categories based on user input.
+This app gets POIs, its data, and creates the map using the OpenStreetMap (OSM) API, geocodes and reverse geocodes using the Nominatim API, and utilizes trained DistilGPT2 large language model to predict points of interest via natural language prompts.
 
 ## 🪄 Features
 
 Users can:
 
 - Search for POIs within a range of an address
-- Type in a prompt to have the AI predict the POIs of interest
+- Type in a prompt to have the LLM predict the POIs of interest
 - Interact with the map and see information about each POI
 
 ## 📸 Screenshots
@@ -96,9 +96,9 @@ Run the dev server
 
 ## 🔗 Links
 
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jinha-kim/)
+Jinha Kim [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jinha-kim/)
 
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jerry-chen-8852a324b/)
+Jerry Chen [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jerry-chen-8852a324b/)
 
 ## License
 
